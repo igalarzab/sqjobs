@@ -1,3 +1,7 @@
+import logging
+logger = logging.getLogger('sqjobs')
+
+
 class Worker(object):
 
     def __init__(self, broker, queue_name):
