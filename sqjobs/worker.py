@@ -1,5 +1,5 @@
 import logging
-logger = logging.getLogger('sqjobs')
+logger = logging.getLogger('sqjobs.worker')
 
 
 class Worker(object):
@@ -19,16 +19,25 @@ class Worker(object):
 
     def execute(self):
         for payload in self.broker.jobs(self.queue_name):
-            job, args, kwargs = self._build_job(payload)
-            job.run(*args, **kwargs)
+            try:
+                job, args, kwargs = self._build_job(payload)
+                job.run(*args, **kwargs)
+                self.broker.delete_job(job)
+            except:
+                logger.exception('Error executing job')
 
     def _build_job(self, payload):
-        job_class = self.registered_jobs[payload['name']]
+        job_class = self.registered_jobs.get(payload['name'])
+
+        if not job_class:
+            raise ValueError('Unregistered task: %s' % payload['name'])
+
         job = job_class()
 
         job.retries = payload['_metadata']['retries']
         job.created_on = payload['_metadata']['created_on']
         job.first_execution_on = payload['_metadata']['first_execution_on']
+        job._message = payload['_metadata']['message']
 
         return job, payload['args'], payload['kwargs']
 

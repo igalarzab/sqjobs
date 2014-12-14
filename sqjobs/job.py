@@ -11,6 +11,7 @@ class Job(object):
         self.retries = 0
         self.created_on = None
         self.first_execution_on = None
+        self._message = None
 
     def __repr__(self):
         return '{}()'.format(type(self).__name__)

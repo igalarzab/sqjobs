@@ -20,10 +20,13 @@ class Broker(object):
 
     def jobs(self, queue_name):
         while True:
-            job = self.connector.dequeue(queue_name)
+            payload = self.connector.dequeue(queue_name)
 
-            if job:
-                yield job
+            if payload:
+                yield payload
+
+    def delete_job(self, job):
+        self.connector.delete(job.queue, job._message)
 
     def _gen_job_payload(self, job, args, kwargs):
         return {

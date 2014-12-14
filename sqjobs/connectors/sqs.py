@@ -79,7 +79,7 @@ class SQS(object):
 
     def enqueue(self, queue_name, payload):
         """
-        Send a new message to a queue
+        Sends a new message to a queue
 
         :param queue_name: the name of the queue
         :param payload: the payload to send inside the message
@@ -128,6 +128,21 @@ class SQS(object):
 
         return payload
 
+    def delete(self, queue_name, message):
+        """
+        Deletes a message from a queue
+
+        :param queue_name: the name of the queue
+        :param message: the message to delete from the queue
+        """
+        queue = self.get_queue(queue_name)
+
+        if not queue:
+            raise ValueError('The queue does not exist: %s' % queue_name)
+
+        queue.delete_message(message)
+        logger.info('Deleted message from the queue %s', queue_name)
+
     def _encode_message(self, payload):
         payload_str = json.dumps(payload)
 
@@ -147,8 +162,9 @@ class SQS(object):
             'id': message.id,
             'md5': message.md5,
             'retries': retries,
+            'message': message,
             'created_on': datetime.fromtimestamp(created_on / 1000),
-            'first_execution_on': datetime.fromtimestamp(first_execution_on / 1000),
+            'first_execution_on': datetime.fromtimestamp(first_execution_on / 1000)
         }
 
         logging.debug('Message payload %s', str(payload))
