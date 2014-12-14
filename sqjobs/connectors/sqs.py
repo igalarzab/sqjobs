@@ -147,8 +147,8 @@ class SQS(object):
             'id': message.id,
             'md5': message.md5,
             'retries': retries,
-            'created_on': datetime.fromtimestamp(created_on),
-            'first_execution_on': datetime.fromtimestamp(first_execution_on),
+            'created_on': datetime.fromtimestamp(created_on / 1000),
+            'first_execution_on': datetime.fromtimestamp(first_execution_on / 1000),
         }
 
         logging.debug('Message payload %s', str(payload))
