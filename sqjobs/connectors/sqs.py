@@ -87,6 +87,9 @@ class SQS(object):
         message = self._encode_message(payload)
         queue = self.get_queue(queue_name)
 
+        if not queue:
+            raise ValueError('The queue does not exist: %s' % queue_name)
+
         queue.write(message)
         logger.info('Sent new message to %s', queue_name)
 
@@ -103,6 +106,9 @@ class SQS(object):
         """
         messages = None
         queue = self.get_queue(queue_name)
+
+        if not queue:
+            raise ValueError('The queue does not exist: %s' % queue_name)
 
         while not messages:
             messages = queue.get_messages(
