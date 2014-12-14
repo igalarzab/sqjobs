@@ -1,0 +1,5 @@
+-r base.txt
+
+coveralls==0.5
+pytest==2.6.4
+pytest-cov==1.8.1
