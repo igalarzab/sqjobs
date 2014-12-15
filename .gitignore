@@ -1,2 +1,7 @@
 /.coverage
 *.py[c|o]
+
+# distutils
+/sqjobs.egg-info/
+/dist/
+/build/
