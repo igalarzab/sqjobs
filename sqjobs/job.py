@@ -5,6 +5,7 @@ class Job(object):
     __metaclass__ = ABCMeta
 
     queue = 'sqjobs'
+    name = None
     default_retry_time = 30  # seconds
 
     def __init__(self):
@@ -16,12 +17,6 @@ class Job(object):
     def __repr__(self):
         return '{}()'.format(type(self).__name__)
 
-    @classmethod
-    def name(cls):
-        module = cls.__module__
-        name = cls.__name__
-        return '{}|{}'.format(module, name)
-
     def next_retry(self):
         return self.default_retry_time
 
@@ -29,3 +24,12 @@ class Job(object):
     def run(self, *args, **kwargs):
         raise NotImplementedError
 
+    @classmethod
+    def _default_task_name(cls):
+        module = cls.__module__
+        name = cls.__name__
+        return '{}|{}'.format(module, name)
+
+    @classmethod
+    def _task_name(cls):
+        return cls.name if cls.name else cls._default_task_name()

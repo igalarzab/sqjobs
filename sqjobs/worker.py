@@ -15,7 +15,7 @@ class Worker(object):
         )
 
     def register_job(self, job_class):
-        self.registered_jobs[job_class.name()] = job_class
+        self.registered_jobs[job_class._task_name()] = job_class
 
     def execute(self):
         for payload in self.broker.jobs(self.queue_name):

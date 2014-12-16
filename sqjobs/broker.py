@@ -11,12 +11,12 @@ class Broker(object):
             connector=type(self.connector).__name__
         )
 
-    def add_job(self, job, *args, **kwargs):
-        if not issubclass(job, Job):
+    def add_job(self, job_class, *args, **kwargs):
+        if not issubclass(job_class, Job):
             raise ValueError('task must be a subclass of Job')
 
-        payload = self._gen_job_payload(job, args, kwargs)
-        self.connector.enqueue(job.queue, payload)
+        payload = self._gen_job_payload(job_class, args, kwargs)
+        self.connector.enqueue(job_class.queue, payload)
 
     def jobs(self, queue_name):
         while True:
@@ -28,9 +28,9 @@ class Broker(object):
     def delete_job(self, job):
         self.connector.delete(job.queue, job._message)
 
-    def _gen_job_payload(self, job, args, kwargs):
+    def _gen_job_payload(self, job_class, args, kwargs):
         return {
-            'name': job.name(),
+            'name': job_class._task_name(),
             'args': args,
             'kwargs': kwargs
         }
