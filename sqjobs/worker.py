@@ -15,7 +15,12 @@ class Worker(object):
         )
 
     def register_job(self, job_class):
-        self.registered_jobs[job_class._task_name()] = job_class
+        name = job_class._task_name()
+
+        if name in self.registered_jobs:
+            logger.warning('Job %s already registered', name)
+
+        self.registered_jobs[name] = job_class
 
     def execute(self):
         for payload in self.broker.jobs(self.queue_name):
