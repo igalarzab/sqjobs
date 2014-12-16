@@ -6,13 +6,13 @@ class Job(object):
 
     name = None
     queue = 'sqjobs'
-    retry_time = None  # use queue's default value
+    retry_time = None  # None means use queue's default value
 
     def __init__(self):
+        self.id = None
         self.retries = 0
         self.created_on = None
         self.first_execution_on = None
-        self._message = None
 
     def __repr__(self):
         return '{}()'.format(type(self).__name__)

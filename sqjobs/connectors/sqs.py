@@ -93,13 +93,11 @@ class SQS(object):
         queue.write(message)
         logger.info('Sent new message to %s', queue_name)
 
-    def dequeue(self, queue_name, visibility_timeout=None, wait_time=20):
+    def dequeue(self, queue_name, wait_time=20):
         """
         Receive new messages from a queue
 
         :param queue_name: the queue name
-        :param visibility_timeout: how much time to block the message
-        until other workers can obtain access to it.
         :param wait_time: how much time to wait until a new message is
         retrieved (long polling). If set to zero, connection will return
         inmediately if no messages exist.
@@ -113,7 +111,6 @@ class SQS(object):
         while not messages:
             messages = queue.get_messages(
                 wait_time_seconds=wait_time,
-                visibility_timeout=visibility_timeout,
                 attributes='All',
             )
 
@@ -157,7 +154,7 @@ class SQS(object):
             raise ValueError('The queue does not exist: %s' % queue_name)
 
         self.connection.change_message_visibility(queue, message_id, delay)
-        logger.info('Change retry time of a message from queue %s', queue_name)
+        logger.info('Changed retry time of a message from queue %s', queue_name)
 
     def _encode_message(self, payload):
         payload_str = json.dumps(payload)
@@ -181,6 +178,6 @@ class SQS(object):
             'first_execution_on': datetime.fromtimestamp(first_execution_on / 1000)
         }
 
-        logging.debug('Message payload %s', str(payload))
+        logging.debug('Message payload: %s', str(payload))
 
         return payload
