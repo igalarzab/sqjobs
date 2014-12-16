@@ -19,12 +19,14 @@ class Worker(object):
 
     def execute(self):
         for payload in self.broker.jobs(self.queue_name):
+            job, args, kwargs = self._build_job(payload)
+
             try:
-                job, args, kwargs = self._build_job(payload)
                 job.run(*args, **kwargs)
                 self.broker.delete_job(job)
             except:
                 logger.exception('Error executing job')
+                self._change_retry_time(job)
 
     def _build_job(self, payload):
         job_class = self.registered_jobs.get(payload['name'])
@@ -34,10 +36,15 @@ class Worker(object):
 
         job = job_class()
 
+        job.id = payload['_metadata']['id']
         job.retries = payload['_metadata']['retries']
         job.created_on = payload['_metadata']['created_on']
         job.first_execution_on = payload['_metadata']['first_execution_on']
-        job._message = payload['_metadata']['message']
 
         return job, payload['args'], payload['kwargs']
 
+    def _change_retry_time(self, job):
+        retry_time = job.next_retry()
+
+        if retry_time:
+            self.broker.set_retry_time(job, retry_time)

@@ -26,7 +26,10 @@ class Broker(object):
                 yield payload
 
     def delete_job(self, job):
-        self.connector.delete(job.queue, job._message)
+        self.connector.delete(job.queue, job.id)
+
+    def set_retry_time(self, job, delay):
+        self.connector.set_retry_time(job.queue, job.id, delay)
 
     def _gen_job_payload(self, job_class, args, kwargs):
         return {

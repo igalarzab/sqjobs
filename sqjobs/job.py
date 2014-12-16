@@ -6,7 +6,7 @@ class Job(object):
 
     queue = 'sqjobs'
     name = None
-    default_retry_time = 30  # seconds
+    default_retry_time = None  # use queue default value
 
     def __init__(self):
         self.retries = 0

@@ -128,20 +128,36 @@ class SQS(object):
 
         return payload
 
-    def delete(self, queue_name, message):
+    def delete(self, queue_name, message_id):
         """
         Deletes a message from a queue
 
         :param queue_name: the name of the queue
-        :param message: the message to delete from the queue
+        :param message_id: the message id
         """
         queue = self.get_queue(queue_name)
 
         if not queue:
             raise ValueError('The queue does not exist: %s' % queue_name)
 
-        queue.delete_message(message)
-        logger.info('Deleted message from the queue %s', queue_name)
+        self.connection.delete_message_from_handle(queue, message_id)
+        logger.info('Deleted message from queue %s', queue_name)
+
+    def set_retry_time(self, queue_name, message_id, delay):
+        """
+        Changes the retry time of a message
+
+        :param queue_name: the name of the queue
+        :param message_id: the message id
+        :param delay: delay (in seconds) of the next retry
+        """
+        queue = self.get_queue(queue_name)
+
+        if not queue:
+            raise ValueError('The queue does not exist: %s' % queue_name)
+
+        self.connection.change_message_visibility(queue, message_id, delay)
+        logger.info('Change retry time of a message from queue %s', queue_name)
 
     def _encode_message(self, payload):
         payload_str = json.dumps(payload)
@@ -159,10 +175,8 @@ class SQS(object):
         first_execution_on = int(message.attributes['ApproximateFirstReceiveTimestamp'])
 
         payload['_metadata'] = {
-            'id': message.id,
-            'md5': message.md5,
+            'id': message.receipt_handle,
             'retries': retries,
-            'message': message,
             'created_on': datetime.fromtimestamp(created_on / 1000),
             'first_execution_on': datetime.fromtimestamp(first_execution_on / 1000)
         }
