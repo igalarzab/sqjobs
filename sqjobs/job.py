@@ -4,9 +4,9 @@ from abc import ABCMeta, abstractmethod
 class Job(object):
     __metaclass__ = ABCMeta
 
-    queue = 'sqjobs'
     name = None
-    default_retry_time = None  # use queue default value
+    queue = 'sqjobs'
+    retry_time = None  # use queue's default value
 
     def __init__(self):
         self.retries = 0
@@ -18,7 +18,7 @@ class Job(object):
         return '{}()'.format(type(self).__name__)
 
     def next_retry(self):
-        return self.default_retry_time
+        return self.retry_time
 
     @abstractmethod
     def run(self, *args, **kwargs):
