@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from sqjobs import create_sqs_worker
+from sqjobs.contrib.django.djsqjobs.utils import register_all_jobs
 
 
 class Command(BaseCommand):
@@ -25,9 +26,7 @@ class Command(BaseCommand):
             region=settings.SQJOBS_SQS_REGION,
         )
 
-        for job in getattr(settings, 'SQJOBS_JOBS', []):
-            worker.register_job(job)
-
+        register_all_jobs(worker)
         worker.execute()
 
     def help_text(self):
