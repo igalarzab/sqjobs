@@ -1,9 +1,9 @@
 from abc import ABCMeta, abstractmethod
+from six import add_metaclass
 
 
+@add_metaclass(ABCMeta)
 class Job(object):
-    __metaclass__ = ABCMeta
-
     name = None
     queue = 'sqjobs'
     retry_time = None  # None means use queue's default value
@@ -15,7 +15,7 @@ class Job(object):
         self.first_execution_on = None
 
     def __repr__(self):
-        return '{}()'.format(type(self).__name__)
+        return '{0}()'.format(type(self).__name__)
 
     def next_retry(self):
         return self.retry_time
@@ -28,7 +28,7 @@ class Job(object):
     def _default_task_name(cls):
         module = cls.__module__
         name = cls.__name__
-        return '{}|{}'.format(module, name)
+        return '{0}|{1}'.format(module, name)
 
     @classmethod
     def _task_name(cls):
