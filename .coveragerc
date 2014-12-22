@@ -1,3 +1,5 @@
 [run]
 omit =
-    tests/fixtures.py
+    setup.py
+    sqjobs/tests/*.py
+    examples/*.py

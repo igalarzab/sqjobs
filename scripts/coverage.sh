@@ -1,3 +1,3 @@
 #! /bin/bash
 
-py.test --quiet --cov .
+py.test --cov .
