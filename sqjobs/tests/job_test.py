@@ -32,7 +32,7 @@ class TestJobExample(object):
 
     def test_job_defaults(self):
         adder = Adder()
-        assert adder.__repr__() == 'Adder()'
+        assert repr(adder) == 'Adder()'
         assert adder.id is None
         assert adder.retries == 0
         assert adder.created_on is None
