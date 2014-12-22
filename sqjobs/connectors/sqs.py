@@ -4,11 +4,13 @@ import json
 import boto.sqs
 import boto.sqs.message
 
+from .base import Connector
+
 import logging
 logger = logging.getLogger('sqjobs.sqs')
 
 
-class SQS(object):
+class SQS(Connector):
     """
     Manages a single connection to SQS
     """
