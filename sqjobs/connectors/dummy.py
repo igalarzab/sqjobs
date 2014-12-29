@@ -8,7 +8,12 @@ class Dummy(Connector):
 
     def __init__(self):
         self.jobs = {}
+        self.deleted_jobs = {}
+        self.retried_jobs = {}
+
         self.num_jobs = 0
+        self.num_deleted_jobs = 0
+        self.num_retried_jobs = 0
 
     def create_queue(self, name):
         raise NotImplementedError
@@ -24,10 +29,14 @@ class Dummy(Connector):
         self.num_jobs += 1
 
     def dequeue(self, queue_name, wait_time=20):
-        raise NotImplementedError
+        job = self.jobs[queue_name].pop()
+        self.num_jobs -= 1
+        return job
 
     def delete(self, queue_name, message_id):
-        raise NotImplementedError
+        self.deleted_jobs.setdefault(queue_name, []).append(message_id)
+        self.num_deleted_jobs += 1
 
     def set_retry_time(self, queue_name, message_id, delay):
-        raise NotImplementedError
+        self.retried_jobs.setdefault(queue_name, []).append((message_id, delay))
+        self.num_retried_jobs += 1

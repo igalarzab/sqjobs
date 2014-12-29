@@ -55,3 +55,52 @@ class TestBroker(object):
         message = broker.connector.jobs['default'][0]
         payload = {'args': (2,), 'kwargs': {'num2': 3}, 'name': 'adder'}
         assert message == payload
+
+    def test_read_job(self):
+        broker = Broker(self.connector)
+        broker.add_job(Adder, 1, 1)
+        broker.add_job(Adder, 2, 2)
+
+        gen = broker.jobs('default')
+        jobs = []
+
+        for _ in range(2):
+            jobs.append(gen.next())
+
+        assert len(jobs) == 2
+        assert jobs[0] == {'args': (2, 2), 'kwargs': {}, 'name': 'adder'}
+        assert jobs[1] == {'args': (1, 1), 'kwargs': {}, 'name': 'adder'}
+
+    def test_delete_job(self):
+        broker = Broker(self.connector)
+        adder = Adder()
+        adder.queue = 'default'
+        adder.id = '123456789'
+
+        broker.delete_job(adder)
+
+        queues = list(broker.connector.deleted_jobs.keys())
+        assert len(queues) == 1
+        assert queues[0] == 'default'
+        assert broker.connector.num_deleted_jobs == 1
+
+        messages = broker.connector.deleted_jobs['default']
+        assert len(messages) == 1
+        assert messages[0] == '123456789'
+
+    def test_retry_time_job(self):
+        broker = Broker(self.connector)
+        adder = Adder()
+        adder.queue = 'default'
+        adder.id = '123456789'
+
+        broker.set_retry_time(adder, 10)
+
+        queues = list(broker.connector.retried_jobs.keys())
+        assert len(queues) == 1
+        assert queues[0] == 'default'
+        assert broker.connector.num_retried_jobs == 1
+
+        messages = broker.connector.retried_jobs['default']
+        assert len(messages) == 1
+        assert messages[0] == ('123456789', 10)
