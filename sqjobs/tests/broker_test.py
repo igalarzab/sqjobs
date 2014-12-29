@@ -65,7 +65,7 @@ class TestBroker(object):
         jobs = []
 
         for _ in range(2):
-            jobs.append(gen.next())
+            jobs.append(next(gen))
 
         assert len(jobs) == 2
         assert jobs[0] == {'args': (2, 2), 'kwargs': {}, 'name': 'adder'}
