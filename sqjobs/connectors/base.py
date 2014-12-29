@@ -9,24 +9,6 @@ class Connector(object):
     """
 
     @abstractmethod
-    def create_queue(self, name):
-        """
-        Creates a new queue
-
-        :param name: the name of the queue
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def delete_queue(self, name):
-        """
-        Deletes a queue
-
-        :param name: the name of the queue
-        """
-        raise NotImplementedError
-
-    @abstractmethod
     def get_queue(self, name):
         """
         Gets a queue given it name

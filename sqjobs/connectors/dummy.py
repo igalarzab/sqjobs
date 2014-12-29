@@ -15,21 +15,15 @@ class Dummy(Connector):
         self.num_deleted_jobs = 0
         self.num_retried_jobs = 0
 
-    def create_queue(self, name):
-        raise NotImplementedError
-
-    def delete_queue(self, name):
-        raise NotImplementedError
-
     def get_queue(self, name):
-        raise NotImplementedError
+        return self.jobs.setdefault(name, [])
 
     def enqueue(self, queue_name, payload):
-        self.jobs.setdefault(queue_name, []).append(payload)
+        self.get_queue(queue_name).append(payload)
         self.num_jobs += 1
 
     def dequeue(self, queue_name, wait_time=20):
-        job = self.jobs[queue_name].pop()
+        job = self.get_queue(queue_name).pop()
         self.num_jobs -= 1
         return job
 

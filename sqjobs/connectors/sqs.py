@@ -52,24 +52,6 @@ class SQS(Connector):
 
         return self._cached_connection
 
-    def create_queue(self, name):
-        """
-        Creates a new queue
-
-        :param name: the name of the queue
-        """
-        self.connection.create_queue(name)
-        logger.info('Created queue %s', name)
-
-    def delete_queue(self, name):
-        """
-        Deletes a queue
-
-        :param name: the name of the queue
-        """
-        self.connection.delete_queue(name)
-        logger.info('Deleted queue %s', name)
-
     def get_queue(self, name):
         """
         Gets a queue given it name
