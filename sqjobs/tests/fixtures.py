@@ -10,13 +10,13 @@ class Adder(Job):
         return num1 + num2
 
 
-class ComplexRetryJob(Job):
+class FakeAdder(Adder):
+    retry_time = None
+
+
+class ComplexRetryJob(Adder):
     name = 'complex'
     retry_time = 10
 
-    def run(self, counter):
-        counter += 1
-        return counter
-
     def next_retry(self):
-        return (self.retries + 1 ) * self.retry_time
+        return (self.retries + 1) * self.retry_time
