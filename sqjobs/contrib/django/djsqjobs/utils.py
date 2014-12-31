@@ -39,7 +39,7 @@ def get_jobs_from_module(module):
     jobs = []
 
     for name, obj in inspect.getmembers(module):
-        if inspect.isclass(obj) and issubclass(obj, Job):
+        if inspect.isclass(obj) and issubclass(obj, Job) and not inspect.isabstract(obj):
             logger.info('Found new job: %s', name)
             jobs.append(obj)
 
