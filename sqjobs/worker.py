@@ -1,3 +1,6 @@
+import sys
+import traceback
+
 import logging
 logger = logging.getLogger('sqjobs.worker')
 
@@ -30,8 +33,22 @@ class Worker(object):
                 job.run(*args, **kwargs)
                 self.broker.delete_job(job)
             except:
-                logger.exception('Error executing job')
+                self._handle_exception(job, args, kwargs, *sys.exc_info())
                 self._change_retry_time(job)
+
+    def _handle_exception(self, job, args, kwargs, *exc_info):
+        exception_message = ''.join(
+            traceback.format_exception_only(*exc_info[:2]) +
+            traceback.format_exception(*exc_info)
+        )
+
+        logger.error(exception_message, exc_info=True, extra={
+            'id': job.id,
+            'name': job.name,
+            'args': args,
+            'kwargs': kwargs,
+            'queue': job.queue,
+        })
 
     def _build_job(self, payload):
         job_class = self.registered_jobs.get(payload['name'])
