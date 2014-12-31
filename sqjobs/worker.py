@@ -44,11 +44,11 @@ class Worker(object):
         )
 
         logger.error(exception_message, exc_info=True, extra={
-            'id': job.id,
-            'name': job.name,
-            'args': args,
-            'kwargs': kwargs,
-            'queue': job.queue,
+            'job_id': job.id,
+            'job_name': job.name,
+            'arguments': args,
+            'kwarguments': kwargs,
+            'queue_name': job.queue,
         })
 
     def _build_job(self, payload):
