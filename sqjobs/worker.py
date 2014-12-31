@@ -32,6 +32,7 @@ class Worker(object):
             try:
                 job.run(*args, **kwargs)
                 self.broker.delete_job(job)
+                job.on_success(*args, **kwargs)
             except:
                 self._handle_exception(job, args, kwargs, *sys.exc_info())
                 self._change_retry_time(job)

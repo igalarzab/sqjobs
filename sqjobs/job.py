@@ -20,6 +20,9 @@ class Job(object):
     def next_retry(self):
         return self.retry_time
 
+    def on_success(self, *args, **kwargs):
+        pass
+
     @abstractmethod
     def run(self, *args, **kwargs):
         raise NotImplementedError
