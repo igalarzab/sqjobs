@@ -24,6 +24,7 @@ class Command(BaseCommand):
             access_key=settings.SQJOBS_SQS_ACCESS_KEY,
             secret_key=settings.SQJOBS_SQS_SECRET_KEY,
             region=settings.SQJOBS_SQS_REGION,
+            is_secure=getattr(settings, 'SQJOBS_SQS_IS_SECURE', True)
         )
 
         register_all_jobs(worker)

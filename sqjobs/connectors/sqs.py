@@ -15,7 +15,7 @@ class SQS(Connector):
     Manages a single connection to SQS
     """
 
-    def __init__(self, access_key, secret_key, region='us-east-1'):
+    def __init__(self, access_key, secret_key, region='us-east-1', is_secure=True):
         """
         Creates a new SQS object
 
@@ -26,6 +26,7 @@ class SQS(Connector):
         self.access_key = access_key
         self.secret_key = secret_key
         self.region = region
+        self.is_secure = is_secure
 
         self._cached_connection = None
 
@@ -45,7 +46,8 @@ class SQS(Connector):
             self._cached_connection = boto.sqs.connect_to_region(
                 self.region,
                 aws_access_key_id=self.access_key,
-                aws_secret_access_key=self.secret_key
+                aws_secret_access_key=self.secret_key,
+                is_secure=self.is_secure
             )
 
             logger.debug('Created new SQS connection')
