@@ -64,8 +64,10 @@ class Worker(object):
         job.retries = payload['_metadata']['retries']
         job.created_on = payload['_metadata']['created_on']
         job.first_execution_on = payload['_metadata']['first_execution_on']
+        args = payload['args'] or []
+        kwargs = payload['kwargs'] or {}
 
-        return job, payload['args'], payload['kwargs']
+        return job, args, kwargs
 
     def _change_retry_time(self, job):
         retry_time = job.next_retry()
