@@ -33,7 +33,7 @@ class SQS(Connector):
     def __repr__(self):
         return 'SQS("{ak}", "{sk}", region="{region}")'.format(
             ak=self.access_key,
-            sk=self.secret_key,
+            sk="%s******%s" % (self.secret_key[0:6], self.secret_key[-4:]),
             region=self.region
         )
 
