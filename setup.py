@@ -1,21 +1,22 @@
+import imp
+
 from setuptools import setup, find_packages
 
+metadata = imp.load_source('metadata', 'sqjobs/metadata.py')
+
 setup(
-    name='sqjobs',
-    version='0.5',
-    url='https://github.com/igalarzab/sqjobs/',
-    license='BSD',
-    author='Jose Ignacio Galarza',
-    author_email='igalarzab@gmail.com',
-    description='Simple Queue Jobs (using SQS, Simple Queue Service, from AWS)',
-    long_description='',
+    name=metadata.__uname__,
+    version=metadata.__version__,
+    url=metadata.__url__,
+    license=metadata.__license__,
+    author=metadata.__author__,
+    author_email=metadata.__email__,
+    description=metadata.__long_name__,
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
     zip_safe=False,
     platforms='any',
-    install_requires=[
-        'boto==2.34.0',
-    ],
+    install_requires=[req.strip() for req in open('requirements/base.txt').readlines()],
     classifiers=[
         'Development Status :: 4 - Beta',
         # 'Development Status :: 5 - Production/Stable',

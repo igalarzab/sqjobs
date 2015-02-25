@@ -1,4 +1,5 @@
 from .job import Job
+from .metadata import __version__, __license__
 
 
 def create_sqs_broker(access_key, secret_key, region='us-west-1', is_secure=True):
@@ -23,12 +24,3 @@ def create_sqs_worker(queue_name, access_key, secret_key, region='us-west-1', is
     worker = Worker(broker, queue_name)
 
     return worker
-
-
-__uname__ = 'sqjobs'
-__long_name__ = 'Simple Queue Jobs'
-__version__ = '0.5'
-__author__ = 'Jose Ignacio Galarza'
-__email__ = 'igalarzab@gmail.com'
-__url__ = 'http://github.com/igalarzab/sqjobs'
-__license__ = 'BSD'
