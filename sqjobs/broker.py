@@ -18,11 +18,11 @@ class Broker(object):
         payload = self._gen_job_payload(job_class, args, kwargs)
         self.connector.enqueue(job_class.queue, payload)
 
-    def jobs(self, queue_name):
+    def jobs(self, queue_name, timeout=20):
         while True:
-            payload = self.connector.dequeue(queue_name)
+            payload = self.connector.dequeue(queue_name, wait_time=timeout)
 
-            if payload:
+            if payload or timeout == 0:
                 yield payload
 
     def delete_job(self, job):
