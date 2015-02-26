@@ -18,6 +18,12 @@ class Dummy(Connector):
     def get_queue(self, name):
         return self.jobs.setdefault(name, [])
 
+    def get_queues(self):
+        return self.jobs.keys()
+
+    def get_dead_letter_queues(self):
+        return []
+
     def enqueue(self, queue_name, payload):
         self.get_queue(queue_name).append(payload)
         self.num_jobs += 1
