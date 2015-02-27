@@ -25,6 +25,12 @@ class Broker(object):
             if payload or timeout == 0:
                 yield payload
 
+    def queues(self):
+        return self.connector.get_queues()
+
+    def dead_letter_queues(self):
+        return self.connector.get_dead_letter_queues()
+
     def delete_job(self, job):
         self.connector.delete(job.queue, job.id)
 

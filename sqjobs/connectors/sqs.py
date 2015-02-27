@@ -63,6 +63,28 @@ class SQS(Connector):
         queue = self.connection.get_queue(name)
         return queue
 
+    def get_queues(self):
+        """
+        Gets all the available queues
+        """
+        queues = self.connection.get_all_queues()
+        return [q.name for q in queues]
+
+    def get_dead_letter_queues(self):
+        """
+        Gets all the available dead letter queues
+        """
+        dead_letter_queues = set()
+        for queue in self.connection.get_all_queues():
+            # This returns the source queue of a dead letter queue.
+            # So, if it returns something, it means that the current `queue` is
+            # a dead letter queue
+            dead_letter_queue = self.connection.get_dead_letter_source_queues(queue)
+            if dead_letter_queue:
+                dead_letter_queues.add(queue.name)
+
+        return list(dead_letter_queues)
+
     def enqueue(self, queue_name, payload):
         """
         Sends a new message to a queue

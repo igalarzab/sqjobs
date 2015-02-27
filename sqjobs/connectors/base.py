@@ -18,6 +18,20 @@ class Connector(object):
         raise NotImplementedError
 
     @abstractmethod
+    def get_queues(self):
+        """
+        Gets all the available queues
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_dead_letter_queues(self):
+        """
+        Gets all the available dead letter queues
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def enqueue(self, queue_name, payload):
         """
         Sends a new message to a queue
