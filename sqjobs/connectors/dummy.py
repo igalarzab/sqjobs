@@ -19,7 +19,7 @@ class Dummy(Connector):
         return self.jobs.setdefault(name, [])
 
     def get_queues(self):
-        return self.jobs.keys()
+        return list(self.jobs.keys())
 
     def get_dead_letter_queues(self):
         return []
