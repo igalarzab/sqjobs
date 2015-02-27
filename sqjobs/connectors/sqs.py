@@ -65,14 +65,14 @@ class SQS(Connector):
 
     def get_queues(self):
         """
-        Gets all the queues available
+        Gets all the available queues
         """
         queues = self.connection.get_all_queues()
-        return [q.name for q in queues ]
+        return [q.name for q in queues]
 
     def get_dead_letter_queues(self):
         """
-        Gets all the dead letter queues vailable
+        Gets all the available dead letter queues
         """
         dead_letter_queues = set()
         for queue in self.connection.get_all_queues():

@@ -20,14 +20,14 @@ class Connector(object):
     @abstractmethod
     def get_queues(self):
         """
-        Gets all the queues available
+        Gets all the available queues
         """
         raise NotImplementedError
 
     @abstractmethod
     def get_dead_letter_queues(self):
         """
-        Gets all the dead letter queues vailable
+        Gets all the available dead letter queues
         """
         raise NotImplementedError
 
