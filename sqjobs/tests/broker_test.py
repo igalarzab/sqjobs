@@ -109,13 +109,15 @@ class TestBroker(object):
         broker = Broker(self.connector)
 
         queues = broker.queues()
-        assert queues == []
+
+        assert len(queues) == 0
 
         broker.add_job(Adder, 1, 2)
 
-        queues = broker.queues()
+        queues = list(broker.queues())
 
-        assert queues == ['default']
+        assert len(queues) == 1
+        assert queues[0] == 'default'
 
     def test_dead_letter_queues(self):
         broker = Broker(self.connector)
@@ -125,4 +127,4 @@ class TestBroker(object):
         queues = broker.dead_letter_queues()
 
         # Dummy connector defines no dead-letter queue
-        assert queues == []
+        assert len(queues) == 0
