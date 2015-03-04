@@ -23,6 +23,7 @@ class SQS(Connector):
         :param secret_key: secret key with access to SQS
         :param region: a valid region of AWS, like 'us-east-1'
         :param port: connection port, default to 443
+
         """
         self.access_key = access_key
         self.secret_key = secret_key
