@@ -37,7 +37,8 @@ class SQS(Connector):
         return 'SQS("{ak}", "{sk}", region="{region}", port="{port}")'.format(
             ak=self.access_key,
             sk="%s******%s" % (self.secret_key[0:6], self.secret_key[-4:]),
-            region=self.region
+            region=self.region,
+            port=self.port
         )
 
     @property
