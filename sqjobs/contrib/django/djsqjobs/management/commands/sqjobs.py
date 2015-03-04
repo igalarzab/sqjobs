@@ -24,7 +24,8 @@ class Command(BaseCommand):
             access_key=settings.SQJOBS_SQS_ACCESS_KEY,
             secret_key=settings.SQJOBS_SQS_SECRET_KEY,
             region=settings.SQJOBS_SQS_REGION,
-            is_secure=getattr(settings, 'SQJOBS_SQS_IS_SECURE', True)
+            is_secure=getattr(settings, 'SQJOBS_SQS_IS_SECURE', True),
+            port=getattr(settings, 'SQJOBS_SQS_CONNECTION_PORT', 443),
         )
 
         register_all_jobs(worker)

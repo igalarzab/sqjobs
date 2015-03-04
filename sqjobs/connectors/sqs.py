@@ -15,26 +15,30 @@ class SQS(Connector):
     Manages a single connection to SQS
     """
 
-    def __init__(self, access_key, secret_key, region='us-east-1', is_secure=True):
+    def __init__(self, access_key, secret_key, region='us-east-1', is_secure=True, port=443):
         """
         Creates a new SQS object
 
         :param access_key: access key with access to SQS
         :param secret_key: secret key with access to SQS
         :param region: a valid region of AWS, like 'us-east-1'
+        :param port: connection port, default to 443
+
         """
         self.access_key = access_key
         self.secret_key = secret_key
         self.region = region
         self.is_secure = is_secure
+        self.port = port
 
         self._cached_connection = None
 
     def __repr__(self):
-        return 'SQS("{ak}", "{sk}", region="{region}")'.format(
+        return 'SQS("{ak}", "{sk}", region="{region}", port="{port}")'.format(
             ak=self.access_key,
             sk="%s******%s" % (self.secret_key[0:6], self.secret_key[-4:]),
-            region=self.region
+            region=self.region,
+            port=self.port
         )
 
     @property
@@ -47,7 +51,8 @@ class SQS(Connector):
                 self.region,
                 aws_access_key_id=self.access_key,
                 aws_secret_access_key=self.secret_key,
-                is_secure=self.is_secure
+                is_secure=self.is_secure,
+                port=self.port
             )
 
             logger.debug('Created new SQS connection')
