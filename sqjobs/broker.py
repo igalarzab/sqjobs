@@ -32,7 +32,10 @@ class Broker(object):
         return self.connector.get_dead_letter_queues()
 
     def delete_job(self, job):
-        self.connector.delete(job.queue, job.id)
+        self.delete_message(job.queue, job.id)
+
+    def delete_message(self, queue, message_id):
+        self.connector.delete(queue, message_id)
 
     def set_retry_time(self, job, delay):
         self.connector.set_retry_time(job.queue, job.id, delay)
