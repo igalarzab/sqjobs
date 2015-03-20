@@ -30,8 +30,8 @@ class Worker(object):
             job, args, kwargs = self._build_job(payload)
 
             try:
-                job.run(*args, **kwargs)
                 self.broker.delete_job(job)
+                job.run(*args, **kwargs)
                 job.on_success(*args, **kwargs)
             except:
                 self._handle_exception(job, args, kwargs, *sys.exc_info())
