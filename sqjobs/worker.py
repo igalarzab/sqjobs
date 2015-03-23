@@ -30,6 +30,7 @@ class Worker(object):
             job, args, kwargs = self._build_job(payload)
 
             try:
+                self.broker.change_message_lock_timeout(job)
                 job.run(*args, **kwargs)
                 self.broker.delete_job(job)
                 job.on_success(*args, **kwargs)
