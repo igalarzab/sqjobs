@@ -40,8 +40,8 @@ class Broker(object):
         In the retry case the lock time is used to hide the message until the
         retry time passed and other worker use it to retry the job
         """
-        if job.retry_time:
-            self.connector.set_retry_time(job.queue, job.id, job.retry_time)
+        if job.lock_time:
+            self.connector.set_retry_time(job.queue, job.id, job.lock_time)
 
     def delete_job(self, job):
         self.delete_message(job.queue, job.id)
