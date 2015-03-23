@@ -35,6 +35,7 @@ class Broker(object):
         """
         Lock timeout uses the same amount of time than retry but with different
         purposes.
+
         Lock read timeout is used to extend the time the message is locked because
         for example the job duration is beyond the default lock value.
         In the retry case the lock time is used to hide the message until the

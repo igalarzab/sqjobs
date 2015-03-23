@@ -7,12 +7,12 @@ class Job(object):
     name = None
     queue = 'sqjobs'
     """
-    Time used to defined how many time the message will be locked until other
+    Time used to define how much time the message will be locked until other
     worker could retry the job
     """
     retry_time = None  # None means use queue's default value
     """
-    Define the time a message will be locked while the message is being consumed
+    Define how much time a message will be locked while the message is being consumed
     to avoid other workers consume and execute the same job at the same time
     """
     lock_time = None  # None means use queue's default value
