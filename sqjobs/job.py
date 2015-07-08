@@ -32,6 +32,9 @@ class Job(object):
     def on_success(self, *args, **kwargs):
         pass
 
+    def on_failure(self, *args, **kwargs):
+        pass
+
     @abstractmethod
     def run(self, *args, **kwargs):
         raise NotImplementedError
