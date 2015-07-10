@@ -16,7 +16,7 @@ class Broker(object):
             raise ValueError('task must be a subclass of Job')
 
         payload = self._gen_job_payload(job_class, args, kwargs)
-        self.connector.enqueue(job_class.queue, payload)
+        return self.connector.enqueue(job_class.queue, payload)
 
     def jobs(self, queue_name, timeout=20):
         while True:

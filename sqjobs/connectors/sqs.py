@@ -103,8 +103,9 @@ class SQS(Connector):
         if not queue:
             raise ValueError('The queue does not exist: %s' % queue_name)
 
-        queue.write(message)
+        response = queue.write(message)
         logger.info('Sent new message to %s', queue_name)
+        return response
 
     def dequeue(self, queue_name, wait_time=20):
         """
