@@ -3,7 +3,7 @@ import pytest
 from ..connectors.dummy import Dummy
 from ..worker import Worker
 from ..broker import Broker
-from .fixtures import Adder, FakeAdder
+from .fixtures import Adder, FakeAdder, AbstractAdder
 
 
 class TestWorker(object):
@@ -26,6 +26,12 @@ class TestWorker(object):
 
         assert len(worker.registered_jobs) == 1
         assert worker.registered_jobs[Adder.name] == Adder
+
+    def test_register_abstract_job(self):
+        worker = Worker(self.broker, 'default')
+        worker.register_job(AbstractAdder)
+
+        assert len(worker.registered_jobs) == 0
 
     def test_register_job_twice(self):
         worker = Worker(self.broker, 'default')

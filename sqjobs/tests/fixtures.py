@@ -14,6 +14,10 @@ class FakeAdder(Adder):
     retry_time = None
 
 
+class AbstractAdder(Adder):
+    abstract = True
+
+
 class ComplexRetryJob(Adder):
     name = 'complex'
     retry_time = 10
