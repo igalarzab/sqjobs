@@ -1,10 +1,10 @@
 from django.db import models
 
 class JobStatus(models.Model):
-    PENDING = 'P'
-    SUCCESS = 'S'
-    FAILURE = 'F'
-    TIMEOUT = 'T'
+    PENDING = 'PENDING'
+    SUCCESS = 'SUCCESS'
+    FAILURE = 'FAILURE'
+    TIMEOUT = 'TIMEOUT'
     states = (
         (PENDING, 'PENDING'),
         (SUCCESS, 'SUCCESS'), 
