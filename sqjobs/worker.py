@@ -23,6 +23,9 @@ class Worker(object):
         if name in self.registered_jobs:
             logger.warning('Job %s already registered', name)
 
+        if job_class.abstract:
+            return
+
         self.registered_jobs[name] = job_class
 
     def execute(self):

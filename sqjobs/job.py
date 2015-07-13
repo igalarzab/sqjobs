@@ -5,6 +5,11 @@ from six import add_metaclass
 @add_metaclass(ABCMeta)
 class Job(object):
     name = None
+    """
+    Set this property to `True` if you define a base class in your application
+    that will be inherited for the real jobs you want.
+    """
+    abstract = False
     queue = 'sqjobs'
     """
     Time used to define how much time the message will be locked until other
