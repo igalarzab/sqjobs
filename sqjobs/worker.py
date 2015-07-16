@@ -25,19 +25,21 @@ class Worker(object):
 
         self.registered_jobs[name] = job_class
 
+    def execute_job(self, job, args, kwargs):
+        try:
+            self.broker.change_message_lock_timeout(job)
+            job.execute(*args, **kwargs)
+            self.broker.delete_job(job)
+            job.on_success(*args, **kwargs)
+        except:
+            job.on_failure(*args, **kwargs)
+            self._handle_exception(job, args, kwargs, *sys.exc_info())
+            self._change_retry_time(job)
+
     def execute(self):
         for payload in self.broker.jobs(self.queue_name):
             job, args, kwargs = self._build_job(payload)
-
-            try:
-                self.broker.change_message_lock_timeout(job)
-                job.run(*args, **kwargs)
-                self.broker.delete_job(job)
-                job.on_success(*args, **kwargs)
-            except:
-                job.on_failure(*args, **kwargs)
-                self._handle_exception(job, args, kwargs, *sys.exc_info())
-                self._change_retry_time(job)
+            self.execute_job(job, args, kwargs)
 
     def _handle_exception(self, job, args, kwargs, *exc_info):
         exception_message = ''.join(

@@ -7,8 +7,8 @@ class JobStatus(models.Model):
     TIMEOUT = 'TIMEOUT'
     states = (
         (PENDING, 'PENDING'),
-        (SUCCESS, 'SUCCESS'), 
-        (TIMEOUT, 'TIMEOUT'), 
+        (SUCCESS, 'SUCCESS'),
+        (TIMEOUT, 'TIMEOUT'),
         (FAILURE, 'FAILURE')
     )
 

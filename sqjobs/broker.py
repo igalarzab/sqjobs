@@ -3,20 +3,35 @@ from .job import Job
 
 class Broker(object):
 
-    def __init__(self, connector):
+    def __init__(self, connector, eager=False):
         self.connector = connector
+        self.eager = eager
 
     def __repr__(self):
         return 'Broker({connector})'.format(
             connector=type(self.connector).__name__
         )
 
-    def add_job(self, job_class, *args, **kwargs):
-        if not issubclass(job_class, Job):
-            raise ValueError('task must be a subclass of Job')
+    def execute_eager(self, job_class, *args, **kwargs):
+        import time
+        eager_job = job_class()
+        eager_job.id = '%s' % time.time()
+        try:
+            eager_job.execute(*args, **kwargs)
+            eager_job.on_success(*args, **kwargs)
+        except:
+            eager_job.on_failure(*args, **kwargs)
+        return eager_job
 
-        payload = self._gen_job_payload(job_class, args, kwargs)
-        return self.connector.enqueue(job_class.queue, payload)
+    def add_job(self, job_class, *args, **kwargs):
+        if self.eager:
+            return self.execute_eager(job_class, *args, **kwargs)
+        else:
+            if not issubclass(job_class, Job):
+                raise ValueError('task must be a subclass of Job')
+
+            payload = self._gen_job_payload(job_class, args, kwargs)
+            return self.connector.enqueue(job_class.queue, payload)
 
     def jobs(self, queue_name, timeout=20):
         while True:
@@ -41,10 +56,14 @@ class Broker(object):
         In the retry case the lock time is used to hide the message until the
         retry time passed and other worker use it to retry the job
         """
+        if self.eager:
+            return
         if job.lock_time:
             self.connector.set_retry_time(job.queue, job.id, job.lock_time)
 
     def delete_job(self, job):
+        if self.eager:
+            return
         self.delete_message(job.queue, job.id)
 
     def delete_message(self, queue, message_id):

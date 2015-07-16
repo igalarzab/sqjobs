@@ -2,7 +2,7 @@ from .job import Job
 from .metadata import __version__, __license__
 
 
-def create_sqs_broker(access_key, secret_key, region='us-west-1', is_secure=True, port=443):
+def create_sqs_broker(access_key, secret_key, region='us-west-1', is_secure=True, port=443, eager=False):
     from .connectors.sqs import SQS
     from .broker import Broker
 
@@ -14,7 +14,7 @@ def create_sqs_broker(access_key, secret_key, region='us-west-1', is_secure=True
         port=port
     )
 
-    broker = Broker(sqs)
+    broker = Broker(sqs, eager)
     return broker
 
 
