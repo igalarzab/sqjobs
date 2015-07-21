@@ -4,13 +4,8 @@ import json
 import pytz
 from datetime import datetime, timedelta
 import logging
-try:
-    import threading
-except ImportError:
-    import dummy_threading as threading
 
 from django.db import transaction
-from django.db.models import Q
 
 from .models import PeriodicJob
 
