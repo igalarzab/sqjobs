@@ -29,7 +29,13 @@ class ResultJob(Job):
             self.job_status.save(force_insert=True)
             self.properly_setup = True
         except:
-            raise DuplicatedTaskException('Task duplicated: %s' % task_id)
+            self.job_status = JobStatus.objects.get(job_id=task_id)
+            if self.job_status.status == JobStatus.FAILURE:
+                self.job_status.status = JobStatus.PENDING
+                self.job_status.save()
+                self.properly_setup = True
+            else:
+                raise DuplicatedTaskException('Task duplicated: %s' % task_id)
 
     @abstractmethod
     def run(self, *args, **kwargs):

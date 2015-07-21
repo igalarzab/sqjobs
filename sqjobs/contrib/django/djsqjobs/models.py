@@ -1,4 +1,5 @@
 from django.db import models
+import pytz
 
 class JobStatus(models.Model):
     PENDING = 'PENDING'
@@ -37,3 +38,31 @@ class JobStatus(models.Model):
 
     def __unicode__(self):
         return u"<Job: %s state->%s>" % (self.job_id, self.status)
+
+
+class PeriodicJob(models.Model):
+    name = models.CharField(u"name", max_length=255, unique=False)
+    task = models.CharField(u"task", max_length=255, unique=False)
+    args = models.TextField(u"args", null=True, default=None)
+    schedule = models.CharField(u"schedule", max_length=255, unique=False)
+    timezone = models.CharField(u"timezone", max_length=63, unique=False, default="UTC")
+    created_on = models.DateTimeField(u"created on", auto_now_add=True)
+    next_execution = models.DateTimeField(u"next execution on", auto_now=False)
+    enabled = models.BooleanField(u"enabled", default=True)
+
+    def save(self, *args, **kwargs):
+        self.next_execution = self.get_next_utc_execution()
+        super(PeriodicJob, self).save(*args, **kwargs)
+
+    def get_next_utc_execution(self):
+        from croniter.croniter import croniter
+        from datetime import datetime, timedelta
+        tz = pytz.timezone(self.timezone)
+        utc = pytz.timezone('UTC')
+
+        now_there = datetime.now(tz)
+        if not self.next_execution:
+            now_there = now_there-timedelta(minutes=1)
+
+        ct = croniter(self.schedule, now_there)
+        return ct.get_next(datetime).astimezone(utc)
