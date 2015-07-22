@@ -1,7 +1,6 @@
 import time
 import sys
 import json
-import pytz
 from datetime import datetime, timedelta
 import logging
 
@@ -15,22 +14,7 @@ class Beat(object):
     def __init__(self, broker, sleep_interval=10):
         self.broker = broker
         self.sleep_interval = sleep_interval
-
-    def get_next_jobs(self):
-        sleep_timedelta = timedelta(seconds=self.sleep_interval)
-        utc_now = datetime.utcnow()
-        utc_before = utc_now - sleep_timedelta
-
-        try:
-            jobs_to_execute = PeriodicJob.objects.filter(
-                enabled=True,
-                next_execution__lte=utc_now,
-                next_execution__gt=utc_before
-            )
-        except PeriodicJob.DoesNotExist:
-            return []
-
-        return jobs_to_execute
+        self.currently_expired_jobs = []
 
     def get_class_and_kwargs(self, job):
         m_name, c_name = job.task.rsplit('.', 1)
@@ -38,13 +22,28 @@ class Beat(object):
         m = importlib.import_module(m_name)
         job_class = getattr(m, c_name)
         kwargs = json.loads(job.args)
+        if 'fake_date' not in kwargs:
+            kwargs['fake_date'] = job.next_execution.isoformat()
         return job_class, kwargs
 
+    def get_expired_jobs(self):
+        utc_now = datetime.utcnow()
+        try:
+            self.currently_expired_jobs = PeriodicJob.objects.filter(
+                enabled=True,
+                next_execution__lte=utc_now,
+            )
+        except PeriodicJob.DoesNotExist:
+            self.currently_expired_jobs = []
+
+        return self.currently_expired_jobs
+
     def enqueue_next_jobs(self):
-        for job in self.get_next_jobs():
-            logger.info('Queuing %s', job.name)
+        for job in self.currently_expired_jobs:
             job_class, kwargs = self.get_class_and_kwargs(job)
+
             utc_now = datetime.utcnow()
+            utc_before = utc_now - timedelta(seconds=self.sleep_interval)
 
             with transaction.atomic():
                 curr_job = PeriodicJob.objects.select_for_update().get(
@@ -52,10 +51,12 @@ class Beat(object):
                     enabled=True,
                     next_execution__lte=utc_now
                 )
-                curr_job.save()
+                logger.info('Queuing %s', job.name)
                 self.broker.add_job(job_class, **kwargs)
+                curr_job.save()
 
     def run_forever(self):
         while True:
-            self.enqueue_next_jobs()
+            while self.get_expired_jobs():
+                self.enqueue_next_jobs()
             time.sleep(self.sleep_interval)

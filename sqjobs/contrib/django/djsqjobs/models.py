@@ -60,9 +60,10 @@ class PeriodicJob(models.Model):
         tz = pytz.timezone(self.timezone)
         utc = pytz.timezone('UTC')
 
-        now_there = datetime.now(tz)
         if not self.next_execution:
-            now_there = now_there-timedelta(minutes=1)
+            base = datetime.now(tz) - timedelta(minutes=1)
+        else:
+            base = self.next_execution
 
-        ct = croniter(self.schedule, now_there)
+        ct = croniter(self.schedule, base)
         return ct.get_next(datetime).astimezone(utc)
