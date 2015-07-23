@@ -22,8 +22,8 @@ class Beat(object):
         m = importlib.import_module(m_name)
         job_class = getattr(m, c_name)
         kwargs = json.loads(job.args)
-        if 'fake_date' not in kwargs:
-            kwargs['fake_date'] = job.next_execution.isoformat()
+        if 'programmed_date' not in kwargs:
+            kwargs['programmed_date'] = job.next_execution.isoformat()
         return job_class, kwargs
 
     def get_expired_jobs(self):
