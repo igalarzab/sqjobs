@@ -6,10 +6,13 @@ from datetime import datetime
 from sqjobs import Job
 from sqjobs.contrib.django.djsqjobs.models import JobStatus
 
+
 class DuplicatedTaskException(Exception):
+
     def __init__(self, message, errors=None):
         super(DuplicatedTaskException, self).__init__(message)
         self.errors = errors
+
 
 @add_metaclass(ABCMeta)
 class ResultJob(Job):
@@ -57,4 +60,3 @@ class ResultJob(Job):
             self.job_status.status = JobStatus.FAILURE
             self.job_status.save(force_update=True)
         super(ResultJob, self).on_failure(*args, **kwargs)
-
