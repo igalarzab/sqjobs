@@ -6,6 +6,7 @@ import logging
 
 from django.db import transaction
 
+from .utils import get_all_jobs
 from .models import PeriodicJob
 
 logger = logging.getLogger('sqjobs.beat')
@@ -13,44 +14,54 @@ logger = logging.getLogger('sqjobs.beat')
 
 class Beat(object):
 
-    def __init__(self, broker, sleep_interval=10, skip_delayed_jobs=None):
+    def __init__(self, broker, sleep_interval=10, skip_delayed_jobs=True):
         self.broker = broker
         self.sleep_interval = sleep_interval
-        self.currently_expired_jobs = []
         self.skip_delayed_jobs = skip_delayed_jobs
+        self.registered_jobs = {}
 
-    def get_class_and_kwargs(self, job):
-        m_name, c_name = job.task.rsplit('.', 1)
-        import importlib
-        m = importlib.import_module(m_name)
-        job_class = getattr(m, c_name)
-        kwargs = json.loads(job.args)
-        kwargs[PeriodicJob.PROGRAMMED_DATE] = job.next_execution.isoformat()
-        return job_class, kwargs
+    def register_job(self, job_class):
+        name = job_class._task_name()
+
+        if name in self.registered_jobs:
+            logger.warning('Job %s already registered', name)
+
+        if job_class.abstract:
+            return
+
+        self.registered_jobs[name] = job_class
+
+#    def get_job_class(self, job):
+#        jobs = get_all_jobs()
+#        m_name, c_name = job.task.rsplit('.', 1)
+#        import importlib
+#        m = importlib.import_module(m_name)
+#        return getattr(m, c_name)
+
+    def get_job_kwargs(self, job):
+        job_kwargs = json.loads(job.args)
+        job_kwargs[PeriodicJob.PROGRAMMED_DATE] = job.next_execution.astimezone(timezone(job.timezone)).isoformat()
+        return job_kwargs
 
     def get_expired_jobs(self):
-        try:
-            self.currently_expired_jobs = PeriodicJob.objects.filter(
-                enabled=True,
-                next_execution__lte=datetime.utcnow(),
-            )
-        except PeriodicJob.DoesNotExist:
-            self.currently_expired_jobs = []
+        return PeriodicJob.objects.filter(
+            enabled=True,
+            next_execution__lte=datetime.utcnow(),
+        )
 
-        return self.currently_expired_jobs
-
-    def add_delayed_job_info(self, job, kwargs):
-        last_beat_execution = datetime.utcnow() - timedelta(self.sleep_interval)
+    def add_delayed_job_info(self, job, job_kwargs):
+        last_beat_execution = datetime.utcnow() - timedelta(seconds=self.sleep_interval)
         last_beat_execution = last_beat_execution.replace(tzinfo=timezone('UTC'))
 
         if job.next_execution < last_beat_execution:
-            kwargs[PeriodicJob.DELAYED_JOB] = True
+            job_kwargs[PeriodicJob.DELAYED_JOB] = True
 
-        return kwargs
+        return job_kwargs
 
-    def enqueue_next_jobs(self):
-        for job in self.currently_expired_jobs:
-            job_class, kwargs = self.get_class_and_kwargs(job)
+    def enqueue_next_jobs(self, currently_expired_jobs):
+        for job in currently_expired_jobs:
+            job_class = self.registered_jobs[job.task]
+            job_kwargs = self.get_job_kwargs(job)
 
             with transaction.atomic():
                 curr_job = PeriodicJob.objects.select_for_update().get(
@@ -59,13 +70,12 @@ class Beat(object):
                     next_execution__lte=datetime.utcnow()
                 )
                 logger.info('Queuing %s', job.name)
-                curr_job.skip_delayed_jobs_this_time = self.skip_delayed_jobs
-                kwargs = self.add_delayed_job_info(curr_job, kwargs)
-                self.broker.add_job(job_class, **kwargs)
+                curr_job.skip_delayed_jobs_next_time = self.skip_delayed_jobs
                 curr_job.save()
+                job_kwargs = self.add_delayed_job_info(curr_job, job_kwargs)
+                self.broker.add_job(job_class, **job_kwargs)
 
     def run_forever(self):
         while True:
-            while self.get_expired_jobs():
-                self.enqueue_next_jobs()
+            self.enqueue_next_jobs(self.get_expired_jobs())
             time.sleep(self.sleep_interval)

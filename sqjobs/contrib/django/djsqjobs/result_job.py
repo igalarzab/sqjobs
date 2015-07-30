@@ -27,7 +27,7 @@ class ResultJob(Job):
         try:
             self.job_status = JobStatus(
                 job_id=task_id,
-                job_type=self.__repr__()
+                job_name=self.__repr__()
             )
             self.job_status.save(force_insert=True)
             self.properly_setup = True

@@ -1,7 +1,7 @@
 import pytest
 
 from ..job import Job
-from .fixtures import Adder, ComplexRetryJob
+from .fixtures import Adder, Divider, ComplexRetryJob
 
 
 class TestJobDefaults(object):
@@ -28,6 +28,7 @@ class TestJobDefaults(object):
         with pytest.raises(NotImplementedError):
             Job.run(adder)
 
+
 class TestJobExample(object):
 
     def test_job_defaults(self):
@@ -45,6 +46,16 @@ class TestJobExample(object):
     def test_run_job_directly(self):
         adder = Adder()
         assert adder.run(1, 3) == 4
+
+    def test_execute_job_directly(self):
+        adder = Adder()
+        adder.execute(1, 3)
+        assert adder.result == 4
+
+    def test_whole_execute_job(self):
+        divider = Divider()
+        divider.execute(2, 1)
+        assert divider.result == '3'
 
     def test_job_names(self):
         adder = Adder()

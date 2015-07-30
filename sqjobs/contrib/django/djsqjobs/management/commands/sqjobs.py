@@ -47,6 +47,7 @@ class Command(BaseCommand):
         if skip_jobs is not None:
             skip_jobs = bool(skip_jobs)
         beat = Beat(broker, int(sleep_interval), skip_jobs)
+        register_all_jobs(beat)
         beat.run_forever()
 
     def help_text(self):

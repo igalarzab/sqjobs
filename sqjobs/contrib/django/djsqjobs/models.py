@@ -16,7 +16,7 @@ class JobStatus(models.Model):
 
     """Job result/status."""
     job_id = models.CharField(u"job id", max_length=255, unique=True)
-    job_type = models.CharField(u"job type", max_length=255, unique=False)
+    job_name = models.CharField(u"job name", max_length=255, unique=False)
     status = models.CharField(
         u"job status", max_length=7, default=PENDING, choices=states
     )
@@ -25,14 +25,9 @@ class JobStatus(models.Model):
     date_done = models.DateTimeField(u"done at", auto_now=False, null=True)
     traceback = models.TextField(u"traceback", blank=True, null=True)
 
-    class Meta:
-
-        """Model meta-data."""
-        db_table = "sqjobs_jobstatus"
-
     def to_dict(self):
         return {"job_id": self.job_id,
-                "job_type": self.job_type,
+                "job_name": self.job_name,
                 "status": self.status,
                 "result": self.result,
                 "date_started": self.date_done,
@@ -40,7 +35,7 @@ class JobStatus(models.Model):
                 "traceback": self.traceback}
 
     def __unicode__(self):
-        return u"<Job: %s state->%s>" % (self.job_id, self.status)
+        return u"<Job (%s): %s state->%s>" % (self.job_name, self.job_id, self.status)
 
 
 class PeriodicJob(models.Model):
@@ -55,11 +50,7 @@ class PeriodicJob(models.Model):
     created_on = models.DateTimeField(u"created on", auto_now_add=True)
     next_execution = models.DateTimeField(u"next execution on", auto_now=False)
     enabled = models.BooleanField(u"enabled", default=True)
-    skip_jobs_if_delayed = models.BooleanField(u"skip delayed jobs", default=False)
-
-    def __init__(self, *args, **kwargs):
-        self.skip_delayed_this_time = None
-        super(PeriodicJob, self).__init__(*args, **kwargs)
+    skip_delayed_jobs_next_time = models.BooleanField(u"skip jobs if delayed", default=True)
 
     def save(self, *args, **kwargs):
         self.next_execution = self.get_next_utc_execution()
@@ -74,17 +65,10 @@ class PeriodicJob(models.Model):
         if not self.next_execution:
             base = datetime.now(tz) - timedelta(minutes=1)
 
-        elif self.skip_delayed_this_time is not None:
-            if self.skip_delayed_this_time:
-                base = datetime.now(tz)
-            else:
-                base = self.next_execution
-            self.skip_delayed_this_time = None
+        elif self.skip_delayed_jobs_next_time:
+            base = datetime.now(tz)
         else:
-            if self.skip_jobs_if_delayed:
-                base = datetime.now(tz)
-            else:
-                base = self.next_execution
+            base = self.next_execution
 
         ct = croniter(self.schedule, base)
         return ct.get_next(datetime).astimezone(utc)
