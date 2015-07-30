@@ -22,12 +22,12 @@ def register_all_jobs(worker):
     return jobs
 
 
-def get_all_jobs(seek='jobs'):
+def get_all_jobs():
     jobs = []
 
     for app in get_apps():
         try:
-            module = importlib.import_module(app.__name__[:-6] + seek)
+            module = importlib.import_module(app.__name__[:-6] + 'jobs')
             jobs.extend(get_jobs_from_module(module))
         except ImportError:
             pass
