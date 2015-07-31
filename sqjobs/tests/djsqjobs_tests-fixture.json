@@ -3,7 +3,7 @@
         "fields": {
             "name": "Adder1",
             "task": "adder",
-            "args": "{\"num1\":1, \"num2\":2}",
+            "kwargs": "{\"num1\":1, \"num2\":2}",
             "schedule": "1 * * * *",
             "timezone": "Europe/Madrid",
             "created_on": "2015-07-26T14:11:10Z",
@@ -18,7 +18,7 @@
         "fields": {
             "name": "Divider1",
             "task": "divider",
-            "args": "{\"num1\":2, \"num2\":1}",
+            "kwargs": "{\"num1\":2, \"num2\":1}",
             "schedule": "10 * * * *",
             "timezone": "Europe/Madrid",
             "created_on": "2015-07-26T14:11:10Z",
@@ -33,7 +33,7 @@
         "fields": {
             "name": "FutureDivider",
             "task": "divider",
-            "args": "{\"num1\":2, \"num2\":1}",
+            "kwargs": "{\"num1\":2, \"num2\":1}",
             "schedule": "10 * * * *",
             "timezone": "Europe/Madrid",
             "created_on": "2015-07-26T14:11:10Z",
