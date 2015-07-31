@@ -31,17 +31,16 @@ class Beat(object):
 
         self.registered_jobs[name] = job_class
 
-#    def get_job_class(self, job):
-#        jobs = get_all_jobs()
-#        m_name, c_name = job.task.rsplit('.', 1)
-#        import importlib
-#        m = importlib.import_module(m_name)
-#        return getattr(m, c_name)
-
     def get_job_kwargs(self, job):
-        job_kwargs = json.loads(job.args)
+        job_kwargs = json.loads(job.kwargs)
         job_kwargs[PeriodicJob.PROGRAMMED_DATE] = job.next_execution.astimezone(timezone(job.timezone)).isoformat()
         return job_kwargs
+
+    def get_job_args(self, job):
+        if job.args:
+            return tuple(json.loads(job.args))
+        else:
+            return []
 
     def get_expired_jobs(self):
         return PeriodicJob.objects.filter(
@@ -61,6 +60,7 @@ class Beat(object):
     def enqueue_next_jobs(self, currently_expired_jobs):
         for job in currently_expired_jobs:
             job_class = self.registered_jobs[job.task]
+            job_args = self.get_job_args(job)
             job_kwargs = self.get_job_kwargs(job)
 
             with transaction.atomic():
@@ -73,7 +73,7 @@ class Beat(object):
                 curr_job.skip_delayed_jobs_next_time = self.skip_delayed_jobs
                 curr_job.save()
                 job_kwargs = self.add_delayed_job_info(curr_job, job_kwargs)
-                self.broker.add_job(job_class, **job_kwargs)
+                self.broker.add_job(job_class, *job_args, **job_kwargs)
 
     def run_forever(self):
         while True:

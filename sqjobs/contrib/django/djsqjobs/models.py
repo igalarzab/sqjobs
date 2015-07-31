@@ -45,6 +45,7 @@ class PeriodicJob(models.Model):
     name = models.CharField(u"name", max_length=255, unique=False)
     task = models.CharField(u"task", max_length=255, unique=False)
     args = models.TextField(u"args", null=True, default=None)
+    kwargs = models.TextField(u"kwargs", null=True, default=None)
     schedule = models.CharField(u"schedule", max_length=255, unique=False)
     timezone = models.CharField(u"timezone", max_length=63, unique=False, default="UTC")
     created_on = models.DateTimeField(u"created on", auto_now_add=True)
