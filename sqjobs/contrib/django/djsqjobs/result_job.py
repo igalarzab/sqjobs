@@ -3,6 +3,8 @@ from abc import abstractmethod, ABCMeta
 from six import add_metaclass
 from datetime import datetime
 
+from django.db import IntegrityError
+
 from sqjobs import Job
 from sqjobs.contrib.django.djsqjobs.models import JobStatus
 
@@ -31,7 +33,7 @@ class ResultJob(Job):
             )
             self.job_status.save(force_insert=True)
             self.properly_setup = True
-        except:
+        except IntegrityError:
             self.job_status = JobStatus.objects.get(job_id=task_id)
             if self.job_status.status == JobStatus.FAILURE:
                 self.job_status.status = JobStatus.PENDING
