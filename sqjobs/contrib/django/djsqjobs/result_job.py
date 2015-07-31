@@ -9,18 +9,18 @@ from sqjobs import Job
 from sqjobs.contrib.django.djsqjobs.models import JobStatus
 
 
-class DuplicatedTaskException(Exception):
-
-    def __init__(self, message, errors=None):
-        super(DuplicatedTaskException, self).__init__(message)
-        self.errors = errors
-
-
 @add_metaclass(ABCMeta)
 class ResultJob(Job):
 
     def __init__(self):
         self.properly_setup = False
+        self.repeated_task = False
+
+    def execute(self, *args, **kwargs):
+        self.set_up(*args, **kwargs)
+        if not self.repeated_task:
+            self.result = self.run(*args, **kwargs)
+            self.tear_down(*args, **kwargs)
 
     def set_up(self, *args, **kwargs):
         super(ResultJob, self).set_up(*args, **kwargs)
@@ -40,7 +40,7 @@ class ResultJob(Job):
                 self.job_status.save()
                 self.properly_setup = True
             else:
-                raise DuplicatedTaskException('Task duplicated: %s' % task_id)
+                self.repeated_task = True
 
     @abstractmethod
     def run(self, *args, **kwargs):
@@ -53,12 +53,14 @@ class ResultJob(Job):
         super(ResultJob, self).tear_down(*args, **kwargs)
 
     def on_success(self, *args, **kwargs):
-        self.job_status.status = JobStatus.SUCCESS
-        self.job_status.save(force_update=True)
-        super(ResultJob, self).on_success(*args, **kwargs)
+        if not self.repeated_task:
+            self.job_status.status = JobStatus.SUCCESS
+            self.job_status.save(force_update=True)
+            super(ResultJob, self).on_success(*args, **kwargs)
 
     def on_failure(self, *args, **kwargs):
-        if self.properly_setup:
-            self.job_status.status = JobStatus.FAILURE
-            self.job_status.save(force_update=True)
-        super(ResultJob, self).on_failure(*args, **kwargs)
+        if not self.repeated_task:
+            if self.properly_setup:
+                self.job_status.status = JobStatus.FAILURE
+                self.job_status.save(force_update=True)
+            super(ResultJob, self).on_failure(*args, **kwargs)
