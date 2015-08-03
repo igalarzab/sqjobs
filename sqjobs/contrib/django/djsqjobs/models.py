@@ -7,51 +7,119 @@ class JobStatus(models.Model):
     SUCCESS = 'SUCCESS'
     FAILURE = 'FAILURE'
     TIMEOUT = 'TIMEOUT'
-    states = (
+    statuses = (
         (PENDING, 'PENDING'),
         (SUCCESS, 'SUCCESS'),
         (TIMEOUT, 'TIMEOUT'),
         (FAILURE, 'FAILURE')
     )
 
-    """Job result/status."""
-    job_id = models.CharField(u"job id", max_length=255, unique=True)
-    job_name = models.CharField(u"job name", max_length=255, unique=False)
-    status = models.CharField(
-        u"job status", max_length=7, default=PENDING, choices=states
+    # Job result/status
+    job_id = models.CharField(
+        "job id",
+        max_length=255,
+        unique=True
     )
-    result = models.TextField(null=True, default=None)
-    date_started = models.DateTimeField(u"started at", auto_now_add=True)
-    date_done = models.DateTimeField(u"done at", auto_now=False, null=True)
-    traceback = models.TextField(u"traceback", blank=True, null=True)
+    job_name = models.CharField(
+        "job name",
+        max_length=255,
+        unique=False
+    )
+    status = models.CharField(
+        "job status",
+        max_length=7,
+        default=PENDING,
+        choices=statuses
+    )
+    result = models.TextField(
+        null=True,
+        default=None
+    )
+    date_started = models.DateTimeField(
+        "started at",
+        auto_now_add=True
+    )
+    date_done = models.DateTimeField(
+        "done at",
+        auto_now=False,
+        null=True
+    )
+    traceback = models.TextField(
+        "traceback",
+        blank=True,
+        null=True
+    )
 
     def to_dict(self):
-        return {"job_id": self.job_id,
-                "job_name": self.job_name,
-                "status": self.status,
-                "result": self.result,
-                "date_started": self.date_done,
-                "date_done": self.date_done,
-                "traceback": self.traceback}
+        return {
+            "job_id": self.job_id,
+            "job_name": self.job_name,
+            "status": self.status,
+            "result": self.result,
+            "date_started": self.date_done,
+            "date_done": self.date_done,
+            "traceback": self.traceback
+        }
 
     def __unicode__(self):
-        return u"<Job (%s): %s state->%s>" % (self.job_name, self.job_id, self.status)
+        return "<Job ({name}): {id} status->{status}>".format(
+            name=self.job_name,
+            id=self.job_id,
+            status=self.status
+        )
 
 
 class PeriodicJob(models.Model):
     PROGRAMMED_DATE = 'sqjobs_programmed_date'
     DELAYED_JOB = 'sqjobs_delayed_job'
 
-    name = models.CharField(u"name", max_length=255, unique=False)
-    task = models.CharField(u"task", max_length=255, unique=False)
-    args = models.TextField(u"args", null=True, default=None)
-    kwargs = models.TextField(u"kwargs", null=True, default=None)
-    schedule = models.CharField(u"schedule", max_length=255, unique=False)
-    timezone = models.CharField(u"timezone", max_length=63, unique=False, default="UTC")
-    created_on = models.DateTimeField(u"created on", auto_now_add=True)
-    next_execution = models.DateTimeField(u"next execution on", auto_now=False)
-    enabled = models.BooleanField(u"enabled", default=True)
-    skip_delayed_jobs_next_time = models.BooleanField(u"skip jobs if delayed", default=True)
+    name = models.CharField(
+        "name",
+        max_length=255,
+        unique=False
+    )
+    task = models.CharField(
+        "task",
+        max_length=255,
+        unique=False
+    )
+    args = models.TextField(
+        "args",
+        null=True,
+        default=None
+    )
+    kwargs = models.TextField(
+        "kwargs",
+        null=True,
+        default=None
+    )
+    schedule = models.CharField(
+        "schedule",
+        max_length=255,
+        unique=False
+    )
+    timezone = models.CharField(
+        "timezone",
+        max_length=63,
+        unique=False,
+        default="UTC"
+    )
+    created_on = models.DateTimeField(
+        "created on",
+        auto_now_add=True
+    )
+    next_execution = models.DateTimeField(
+        "next execution on",
+        auto_now=False
+    )
+    enabled = models.BooleanField(
+        "enabled",
+        default=True
+    )
+    skip_delayed_jobs_next_time = models.BooleanField(
+        "skip jobs if delayed",
+        default=True
+    )
 
     def save(self, *args, **kwargs):
         self.next_execution = self.get_next_utc_execution()
@@ -65,11 +133,10 @@ class PeriodicJob(models.Model):
 
         if not self.next_execution:
             base = datetime.now(tz) - timedelta(minutes=1)
-
         elif self.skip_delayed_jobs_next_time:
             base = datetime.now(tz)
         else:
             base = self.next_execution
 
-        ct = croniter(self.schedule, base)
-        return ct.get_next(datetime).astimezone(utc)
+        cron = croniter(self.schedule, base)
+        return cron.get_next(datetime).astimezone(utc)

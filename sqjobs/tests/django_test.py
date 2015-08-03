@@ -34,11 +34,8 @@ parent = os.path.dirname(os.path.dirname(os.path.dirname(
 sys.path.insert(0, parent)
 
 
-#from django.test.simple import DjangoTestSuiteRunner
 from django.test.runner import DiscoverRunner
 
-#DjangoTestSuiteRunner(failfast=False).run_tests([
 DiscoverRunner(failfast=False).run_tests([
     'sqjobs.tests'
 ], verbosity=1)
-

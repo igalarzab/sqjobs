@@ -6,7 +6,6 @@ import logging
 
 from django.db import transaction
 
-from .utils import get_all_jobs
 from .models import PeriodicJob
 
 logger = logging.getLogger('sqjobs.beat')
@@ -39,8 +38,7 @@ class Beat(object):
     def get_job_args(self, job):
         if job.args:
             return tuple(json.loads(job.args))
-        else:
-            return []
+        return []
 
     def get_expired_jobs(self):
         return PeriodicJob.objects.filter(
