@@ -20,7 +20,7 @@
             "task": "divider",
             "kwargs": "{\"num1\":2, \"num2\":1}",
             "schedule": "10 * * * *",
-            "timezone": "Europe/Madrid",
+            "timezone": "Asia/Tokyo",
             "created_on": "2015-07-26T14:11:10Z",
             "next_execution": "2015-07-26T15:10:00Z",
             "enabled": true
