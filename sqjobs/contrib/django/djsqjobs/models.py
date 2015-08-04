@@ -1,5 +1,7 @@
 from django.db import models
 import pytz
+from croniter.croniter import croniter
+from datetime import datetime, timedelta
 
 
 class JobStatus(models.Model):
@@ -126,8 +128,6 @@ class PeriodicJob(models.Model):
         super(PeriodicJob, self).save(*args, **kwargs)
 
     def get_next_utc_execution(self):
-        from croniter.croniter import croniter
-        from datetime import datetime, timedelta
         tz = pytz.timezone(self.timezone)
 
         if not self.next_execution:
