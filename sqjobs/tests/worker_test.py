@@ -2,7 +2,7 @@ import pytest
 
 from ..connectors.dummy import Dummy
 from ..worker import Worker
-from ..broker import Broker
+from ..brokers.broker import Standard
 from .fixtures import Adder, FakeAdder, AbstractAdder
 
 
@@ -14,7 +14,7 @@ class TestWorker(object):
 
     @property
     def broker(self):
-        return Broker(self.connector)
+        return Standard(self.connector)
 
     def test_worker_repr(self):
         worker = Worker(self.broker, 'default')

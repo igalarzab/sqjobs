@@ -1,7 +1,8 @@
-from .job import Job
+from .base import Broker
+from ..job import Job
 
 
-class Broker(object):
+class Standard(Broker):
 
     def __init__(self, connector):
         self.connector = connector
@@ -16,13 +17,13 @@ class Broker(object):
             raise ValueError('task must be a subclass of Job')
 
         payload = self._gen_job_payload(job_class, args, kwargs)
-        self.connector.enqueue(job_class.queue, payload)
+        return self.connector.enqueue(job_class.queue, payload)
 
-    def jobs(self, queue_name, timeout=20):
+    def jobs(self, queue_name, timeout=20, nowait=False):
         while True:
             payload = self.connector.dequeue(queue_name, wait_time=timeout)
 
-            if payload or timeout == 0:
+            if payload or nowait:
                 yield payload
 
     def queues(self):

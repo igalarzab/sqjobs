@@ -1,5 +1,6 @@
 # python
 *.py[c|o]
+.*.swp
 
 # distutils
 /sqjobs.egg-info/

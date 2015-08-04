@@ -1,0 +1,47 @@
+[
+    {
+        "fields": {
+            "name": "Adder1",
+            "task": "adder",
+            "kwargs": "{\"num1\":1, \"num2\":2}",
+            "schedule": "1 0 * * *",
+            "timezone": "Europe/Madrid",
+            "created_on": "2015-02-26T14:11:10Z",
+            "next_execution": "2015-03-29T00:01:00Z",
+            "enabled": true
+        },
+        "model": "djsqjobs.periodicjob",
+        "pk": 2
+
+    },
+    {
+        "fields": {
+            "name": "Divider1",
+            "task": "divider",
+            "kwargs": "{\"num1\":2, \"num2\":1}",
+            "schedule": "10 * * * *",
+            "timezone": "Asia/Tokyo",
+            "created_on": "2015-07-26T14:11:10Z",
+            "next_execution": "2015-07-26T15:10:00Z",
+            "enabled": true
+        },
+        "model": "djsqjobs.periodicjob",
+        "pk": 3
+
+    },
+    {
+        "fields": {
+            "name": "FutureDivider",
+            "task": "divider",
+            "kwargs": "{\"num1\":2, \"num2\":1}",
+            "schedule": "10 * * * *",
+            "timezone": "Europe/Madrid",
+            "created_on": "2015-07-26T14:11:10Z",
+            "next_execution": "3015-07-26T15:10:00Z",
+            "enabled": true
+        },
+        "model": "djsqjobs.periodicjob",
+        "pk": 4
+
+    }
+]

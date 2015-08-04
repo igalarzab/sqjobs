@@ -40,6 +40,17 @@ class Job(object):
     def on_failure(self, *args, **kwargs):
         pass
 
+    def set_up(self, *args, **kwargs):
+        pass
+
+    def tear_down(self, *args, **kwargs):
+        pass
+
+    def execute(self, *args, **kwargs):
+        self.set_up(*args, **kwargs)
+        self.result = self.run(*args, **kwargs)
+        self.tear_down(*args, **kwargs)
+
     @abstractmethod
     def run(self, *args, **kwargs):
         raise NotImplementedError
