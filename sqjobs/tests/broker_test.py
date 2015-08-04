@@ -84,7 +84,7 @@ class TestBroker(object):
 
     def test_read_empty_jobs_without_waiting(self):
         broker = Standard(self.connector)
-        gen = broker.jobs('default', timeout=0)
+        gen = broker.jobs('default', nowait=True)
         assert next(gen) is None
 
     def test_delete_job(self):

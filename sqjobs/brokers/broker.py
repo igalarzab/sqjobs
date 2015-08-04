@@ -19,11 +19,11 @@ class Standard(Broker):
         payload = self._gen_job_payload(job_class, args, kwargs)
         return self.connector.enqueue(job_class.queue, payload)
 
-    def jobs(self, queue_name, timeout=20):
+    def jobs(self, queue_name, timeout=20, nowait=False):
         while True:
             payload = self.connector.dequeue(queue_name, wait_time=timeout)
 
-            if payload or timeout == 0:
+            if payload or nowait:
                 yield payload
 
     def queues(self):
