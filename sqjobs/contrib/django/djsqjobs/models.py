@@ -17,9 +17,8 @@ class JobStatus(models.Model):
     )
 
     # Job result/status
-    job_id = models.CharField(
+    job_id = models.TextField(
         "job id",
-        max_length=255,
         unique=True
     )
     job_name = models.CharField(
