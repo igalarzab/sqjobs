@@ -82,11 +82,10 @@ class TestBroker(object):
         assert jobs[0] == {'args': (2, 2), 'kwargs': {}, 'name': 'adder'}
         assert jobs[1] == {'args': (1, 1), 'kwargs': {}, 'name': 'adder'}
 
-        broker.add_job(Adder, 2, 2)
+    def test_read_empty_jobs_without_waiting(self):
+        broker = Standard(self.connector)
         gen = broker.jobs('default', timeout=0)
-        jobs = []
-        jobs.append(next(gen))
-        assert len(jobs) == 1
+        assert next(gen) is None
 
     def test_delete_job(self):
         broker = Standard(self.connector)

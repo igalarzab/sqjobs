@@ -29,8 +29,12 @@ class Dummy(Connector):
         self.num_jobs += 1
 
     def dequeue(self, queue_name, wait_time=20):
-        job = self.get_queue(queue_name).pop()
-        self.num_jobs -= 1
+        job = None
+        try:
+            job = self.get_queue(queue_name).pop()
+            self.num_jobs -= 1
+        except IndexError:
+            pass
         return job
 
     def delete(self, queue_name, message_id):
