@@ -95,14 +95,6 @@ class TestWorker(object):
 
         assert len(worker.broker.connector.retried_jobs) == 0
 
-#    def test_on_success(self):
-#        # TODO
-#        pass
-#
-#    def test_on_failure(self):
-#        # TODO
-#        pass
-
     def _job_payload(self, jid, name, queue, retries, args, kwargs):
         return {
             'name': name,

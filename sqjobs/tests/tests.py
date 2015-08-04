@@ -110,7 +110,6 @@ class PeriodicJobsTests(DjangoTestCase):
             beat.register_job(Divider)
 
             expired_job = PeriodicJob.objects.get(pk=2)
-            expired_next_execution = expired_job.next_execution
 
             future_job = PeriodicJob.objects.get(pk=4)
             future_next_execution = future_job.next_execution
@@ -124,7 +123,13 @@ class PeriodicJobsTests(DjangoTestCase):
             expired_job = PeriodicJob.objects.get(pk=2)
             self.assertEqual(
                 expired_job.next_execution.isoformat(),
-                "2015-07-26T16:01:00+00:00"
+                "2015-03-29T23:01:00+00:00"
+            )
+
+            japanese_job = PeriodicJob.objects.get(pk=3)
+            self.assertEqual(
+                japanese_job.next_execution.isoformat(),
+                "2015-07-26T16:10:00+00:00"
             )
 
             future_job = PeriodicJob.objects.get(pk=4)

@@ -129,14 +129,13 @@ class PeriodicJob(models.Model):
         from croniter.croniter import croniter
         from datetime import datetime, timedelta
         tz = pytz.timezone(self.timezone)
-        utc = pytz.timezone('UTC')
 
         if not self.next_execution:
-            base = datetime.now(tz) - timedelta(minutes=1)
+            base = tz.normalize(datetime.now(tz) - timedelta(minutes=1))
         elif self.skip_delayed_jobs_next_time:
-            base = datetime.now(tz)
+            base = tz.normalize(datetime.now(tz))
         else:
-            base = self.next_execution
+            base = tz.normalize(self.next_execution.replace(tzinfo=pytz.utc))
 
         cron = croniter(self.schedule, base)
-        return cron.get_next(datetime).astimezone(utc)
+        return cron.get_next(datetime).astimezone(pytz.utc)
