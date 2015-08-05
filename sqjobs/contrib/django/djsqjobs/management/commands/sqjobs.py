@@ -11,6 +11,7 @@ from sqjobs.contrib.django.djsqjobs.beat import Beat
 
 class Command(BaseCommand):
     help = 'sqjobs commands'
+    args = True
 
     def handle(self, *args, **options):
         if args[0] == 'worker':
