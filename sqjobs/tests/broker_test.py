@@ -41,15 +41,16 @@ class TestBroker(object):
 
         message = broker.connector.jobs['default'][0]
         payload = {'args': (2, 3), 'kwargs': {}, 'name': 'adder'}
+        payload['job_id'] = message['job_id']
         assert message == payload
 
     def test_eager_execution(self):
         broker = Eager()
-        assert broker.add_job(Adder, 2, 3).result == 5
+        assert broker.add_job(Adder, 2, 3)[1].result == 5
 
     def test_eager_failure(self):
         broker = Eager()
-        assert broker.add_job(Divider, 2, 0).err == "ZeroDivisionError"
+        assert broker.add_job(Divider, 2, 0)[1].err == "ZeroDivisionError"
 
     def test_payload_kwargs(self):
         broker = Standard(self.connector)
@@ -57,6 +58,7 @@ class TestBroker(object):
 
         message = broker.connector.jobs['default'][0]
         payload = {'args': (), 'kwargs': {'num1': 3, 'num2': 2}, 'name': 'adder'}
+        payload['job_id'] = message['job_id']
         assert message == payload
 
     def test_both_payloads(self):
@@ -65,12 +67,14 @@ class TestBroker(object):
 
         message = broker.connector.jobs['default'][0]
         payload = {'args': (2,), 'kwargs': {'num2': 3}, 'name': 'adder'}
+        payload['job_id'] = message['job_id']
         assert message == payload
 
     def test_read_job(self):
+        job_ids = []
         broker = Standard(self.connector)
-        broker.add_job(Adder, 1, 1)
-        broker.add_job(Adder, 2, 2)
+        job_ids.append(broker.add_job(Adder, 1, 1)[0])
+        job_ids.append(broker.add_job(Adder, 2, 2)[0])
 
         gen = broker.jobs('default')
         jobs = []
@@ -79,8 +83,8 @@ class TestBroker(object):
             jobs.append(next(gen))
 
         assert len(jobs) == 2
-        assert jobs[0] == {'args': (2, 2), 'kwargs': {}, 'name': 'adder'}
-        assert jobs[1] == {'args': (1, 1), 'kwargs': {}, 'name': 'adder'}
+        assert jobs[0] == {'job_id': job_ids[1], 'args': (2, 2), 'kwargs': {}, 'name': 'adder'}
+        assert jobs[1] == {'job_id': job_ids[0], 'args': (1, 1), 'kwargs': {}, 'name': 'adder'}
 
     def test_read_empty_jobs_without_waiting(self):
         broker = Standard(self.connector)
