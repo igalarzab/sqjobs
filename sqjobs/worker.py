@@ -68,6 +68,7 @@ class Worker(object):
 
         job.id = payload['job_id']
         job.queue = self.queue_name
+        job.broker_id = payload['_metadata']['id']
         job.retries = payload['_metadata']['retries']
         job.created_on = payload['_metadata']['created_on']
         job.first_execution_on = payload['_metadata']['first_execution_on']
