@@ -1,4 +1,3 @@
 -r dev.txt
 
 django==1.7
-pytz

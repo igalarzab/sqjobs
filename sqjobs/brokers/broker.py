@@ -1,6 +1,7 @@
 from .base import Broker
 from ..job import Job
 
+from uuid import uuid4
 
 class Standard(Broker):
 
@@ -16,8 +17,10 @@ class Standard(Broker):
         if not issubclass(job_class, Job):
             raise ValueError('task must be a subclass of Job')
 
-        payload = self._gen_job_payload(job_class, args, kwargs)
-        return self.connector.enqueue(job_class.queue, payload)
+        job_id = str(uuid4())
+        payload = self._gen_job_payload(job_id, job_class, args, kwargs)
+        response = self.connector.enqueue(job_class.queue, payload)
+        return job_id, response
 
     def jobs(self, queue_name, timeout=20, nowait=False):
         while True:
@@ -54,8 +57,9 @@ class Standard(Broker):
     def set_retry_time(self, job, delay):
         self.connector.set_retry_time(job.queue, job.id, delay)
 
-    def _gen_job_payload(self, job_class, args, kwargs):
+    def _gen_job_payload(self, job_id, job_class, args, kwargs):
         return {
+            'job_id': job_id,
             'name': job_class._task_name(),
             'args': args,
             'kwargs': kwargs

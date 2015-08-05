@@ -97,6 +97,7 @@ class TestWorker(object):
 
     def _job_payload(self, jid, name, queue, retries, args, kwargs):
         return {
+            'job_id': jid,
             'name': name,
             'queue': queue,
             'args': args,
