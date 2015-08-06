@@ -1,6 +1,8 @@
 import sys
 import traceback
 
+from .job import RetryException
+
 import logging
 logger = logging.getLogger('sqjobs.worker')
 
@@ -34,6 +36,9 @@ class Worker(object):
             job.execute(*args, **kwargs)
             self.broker.delete_job(job)
             job.on_success(*args, **kwargs)
+        except RetryException:
+            job.on_retry()
+            self._change_retry_time(job)
         except:
             job.on_failure(*args, **kwargs)
             self._handle_exception(job, args, kwargs, *sys.exc_info())
@@ -80,5 +85,5 @@ class Worker(object):
     def _change_retry_time(self, job):
         retry_time = job.next_retry()
 
-        if retry_time:
+        if retry_time is not None:
             self.broker.set_retry_time(job, retry_time)

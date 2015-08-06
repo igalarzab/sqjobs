@@ -1,6 +1,6 @@
 import pytest
 
-from ..job import Job
+from ..job import Job, RetryException
 from .fixtures import Adder, Divider, ComplexRetryJob
 
 
