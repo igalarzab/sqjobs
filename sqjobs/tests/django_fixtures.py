@@ -15,7 +15,7 @@ class ResultDivider(ResultJob):
         return super_setup
 
     def run(self, num1, num2, *args, **kwargs):
-        self.result = num1 / num2
+        self.result = num1 // num2
         return self.result
 
     def on_failure(self, *args, **kwargs):
