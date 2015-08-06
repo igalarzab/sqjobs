@@ -36,6 +36,8 @@ sys.path.insert(0, parent)
 
 from django.test.runner import DiscoverRunner
 
-DiscoverRunner(failfast=False).run_tests([
+res = DiscoverRunner(failfast=False).run_tests([
     'sqjobs.tests'
 ], verbosity=1)
+
+os._exit(res)
