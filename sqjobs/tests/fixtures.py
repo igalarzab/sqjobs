@@ -18,7 +18,7 @@ class Divider(Job):
     retry_time = 10
 
     def run(self, num1, num2):
-        return self.num1 / num2
+        return self.num1 // num2
 
     def set_up(self, num1, *args, **kwargs):
         self.num1 = num1 + 1
