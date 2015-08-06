@@ -95,7 +95,7 @@ class TestBroker(object):
         broker = Standard(self.connector)
         adder = Adder()
         adder.queue = 'default'
-        adder.id = '123456789'
+        adder.broker_id = '123456789'
 
         broker.delete_job(adder)
 
@@ -112,7 +112,7 @@ class TestBroker(object):
         broker = Standard(self.connector)
         adder = Adder()
         adder.queue = 'default'
-        adder.id = '123456789'
+        adder.broker_id = '123456789'
 
         broker.set_retry_time(adder, 10)
 

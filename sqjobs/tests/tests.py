@@ -174,7 +174,7 @@ class ResultJobsTests(DjangoTestCase):
         self.assertFalse(result_divider.properly_setup)
         result_divider.set_up()
         self.assertEqual(repr(result_divider.job_status),
-            '<JobStatus: <Job (ResultDivider()): 1234 status->PENDING>>'
+            '<JobStatus (ResultDivider()): 1234 status->PENDING>'
         )
         self.assertEqual(
             result_divider.job_status.to_dict(),
@@ -199,4 +199,4 @@ class ResultJobsTests(DjangoTestCase):
         self.assertEqual(result_divider.err, 'ZeroDivisionError')
         result_divider.tear_down()
         self.assertLessEqual(result_divider.job_status.date_done, datetime.now())
-        self.assertEqual(result_divider.job_status.result, '3')
+        self.assertEqual(result_divider.job_status.result, '3.0')

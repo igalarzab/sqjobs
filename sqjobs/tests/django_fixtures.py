@@ -1,6 +1,7 @@
-from fixtures import Divider
 from sqjobs.contrib.django.djsqjobs.result_job import ResultJob
 from sqjobs.contrib.django.djsqjobs.models import JobStatus
+
+from .fixtures import Divider
 
 
 class ResultDivider(ResultJob):

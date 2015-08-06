@@ -62,8 +62,8 @@ class JobStatus(models.Model):
             "traceback": self.traceback
         }
 
-    def __unicode__(self):
-        return "<Job ({name}): {id} status->{status}>".format(
+    def __repr__(self):
+        return "<JobStatus ({name}): {id} status->{status}>".format(
             name=self.job_name,
             id=self.job_id,
             status=self.status

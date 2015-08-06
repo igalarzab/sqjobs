@@ -55,7 +55,7 @@ class TestJobExample(object):
     def test_whole_execute_job(self):
         divider = Divider()
         divider.execute(2, 1)
-        assert divider.result == '3'
+        assert divider.result == '3.0'
 
     def test_job_names(self):
         adder = Adder()
