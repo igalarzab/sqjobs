@@ -40,4 +40,4 @@ res = DiscoverRunner(failfast=False).run_tests([
     'sqjobs.tests'
 ], verbosity=1)
 
-os._exit(res)
+sys.exit(res)

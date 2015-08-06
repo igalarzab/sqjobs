@@ -179,7 +179,7 @@ class ResultJobsTests(DjangoTestCase):
         self.assertEqual(
             result_divider.job_status.to_dict(),
             {
-                'status': u'PENDING',
+                'status': 'PENDING',
                 'job_id': '1234',
                 'date_done': None,
                 'traceback': None,
