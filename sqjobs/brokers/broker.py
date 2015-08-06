@@ -47,7 +47,7 @@ class Standard(Broker):
         retry time passed and other worker use it to retry the job
         """
         if job.lock_time:
-            self.connector.set_retry_time(job.queue, job.broker_id, job.lock_time)
+            self.connector.retry(job.queue, job.broker_id, job.lock_time)
 
     def delete_job(self, job):
         self.delete_message(job.queue, job.broker_id)
@@ -55,8 +55,8 @@ class Standard(Broker):
     def delete_message(self, queue, message_id):
         self.connector.delete(queue, message_id)
 
-    def set_retry_time(self, job, delay):
-        self.connector.set_retry_time(job.queue, job.broker_id, delay)
+    def retry(self, job, delay=None):
+        self.connector.retry(job.queue, job.broker_id, delay)
 
     def _gen_job_payload(self, job_id, job_class, args, kwargs):
         return {

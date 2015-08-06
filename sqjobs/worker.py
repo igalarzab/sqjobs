@@ -85,5 +85,4 @@ class Worker(object):
     def _change_retry_time(self, job):
         retry_time = job.next_retry()
 
-        if retry_time is not None:
-            self.broker.set_retry_time(job, retry_time)
+        self.broker.retry(job, retry_time)
