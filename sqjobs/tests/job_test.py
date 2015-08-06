@@ -68,6 +68,21 @@ class TestJobExample(object):
         assert adder.next_retry() == 10
 
 
+class TestJobRetry(object):
+    def test_retry(self):
+        adder = Adder()
+        expected_kwargs = {'test': 'test'}
+
+        assert adder.next_retry() == 10
+        with pytest.raises(RetryException):
+            adder.retry(countdown=10, kwargs=expected_kwargs)
+
+        assert adder.retried is True
+        assert adder.countdown == 10
+        assert adder.next_retry() == 10 + adder.countdown
+        assert adder.retry_kwargs == {'kwargs': expected_kwargs}
+
+
 class TestComplexRetries(object):
 
     def test_first_complex_retry(self):
