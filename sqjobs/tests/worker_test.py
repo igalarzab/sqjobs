@@ -84,17 +84,6 @@ class TestWorker(object):
         assert len(worker.broker.connector.retried_jobs['default']) == 1
         assert worker.broker.connector.retried_jobs['default'][0] == (1, 10)
 
-    def test_not_change_retry_time(self):
-        worker = Worker(self.broker, 'default')
-        worker.register_job(FakeAdder)
-
-        payload = self._job_payload(1, 'adder', 'default', 2, [1, 2], {})
-        job, _, _ = worker._build_job(payload)
-
-        worker._change_retry_time(job)
-
-        assert len(worker.broker.connector.retried_jobs) == 0
-
     def _job_payload(self, jid, name, queue, retries, args, kwargs):
         return {
             'job_id': jid,
