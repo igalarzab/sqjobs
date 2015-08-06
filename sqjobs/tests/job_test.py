@@ -77,7 +77,6 @@ class TestJobRetry(object):
         with pytest.raises(RetryException):
             adder.retry(countdown=10, kwargs=expected_kwargs)
 
-        assert adder.retried is True
         assert adder.countdown == 10
         assert adder.next_retry() == 10 + adder.countdown
         assert adder.retry_kwargs == {'kwargs': expected_kwargs}

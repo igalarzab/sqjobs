@@ -22,13 +22,9 @@ class Job(object):
     """
     lock_time = None  # None means use queue's default value
     """
-    Internal state representing that a task was marked to be retried
-    """
-    retried = False
-    """
     Extra time to be added only for retries
     """
-    countdown = 0
+    countdown = None
     """
     Extra arguments passed to the `retry` function. May be used on the `on_retry`
     callbacks
@@ -45,8 +41,8 @@ class Job(object):
         return '{0}()'.format(type(self).__name__)
 
     def next_retry(self):
-        if self.retried:
-            if self.retry_time:
+        if self.countdown is not None:
+            if self.retry_time is not None:
                 return self.retry_time + self.countdown
             return self.countdown
         return self.retry_time
@@ -86,7 +82,6 @@ class Job(object):
         return cls.name if cls.name else cls._default_task_name()
 
     def retry(self, countdown=0, **kwargs):
-        self.retried = True
         if countdown > 0:
             self.countdown = countdown
         self.retry_kwargs = kwargs
