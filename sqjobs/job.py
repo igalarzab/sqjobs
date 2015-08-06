@@ -21,6 +21,19 @@ class Job(object):
     to avoid other workers consume and execute the same job at the same time
     """
     lock_time = None  # None means use queue's default value
+    """
+    Internal state representing that a task was marked to be retried
+    """
+    retried = False
+    """
+    Extra time to be added only for retries
+    """
+    countdown = 0
+    """
+    Extra arguments passed to the `retry` function. May be used on the `on_retry`
+    callbacks
+    """
+    retry_kwargs = None
 
     def __init__(self):
         self.id = None
@@ -32,12 +45,19 @@ class Job(object):
         return '{0}()'.format(type(self).__name__)
 
     def next_retry(self):
+        if self.retried:
+            if self.retry_time:
+                return self.retry_time + self.countdown
+            return self.countdown
         return self.retry_time
 
     def on_success(self, *args, **kwargs):
         pass
 
     def on_failure(self, *args, **kwargs):
+        pass
+
+    def on_retry(self):
         pass
 
     def set_up(self, *args, **kwargs):
@@ -64,3 +84,14 @@ class Job(object):
     @classmethod
     def _task_name(cls):
         return cls.name if cls.name else cls._default_task_name()
+
+    def retry(self, countdown=0, **kwargs):
+        self.retried = True
+        if countdown > 0:
+            self.countdown = countdown
+        self.retry_kwargs = kwargs
+        raise RetryException
+
+
+class RetryException(Exception):
+    pass
