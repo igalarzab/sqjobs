@@ -154,14 +154,17 @@ class SQS(Connector):
         self.connection.delete_message_from_handle(queue, message_id)
         logger.info('Deleted message from queue %s', queue_name)
 
-    def set_retry_time(self, queue_name, message_id, delay):
+    def retry(self, queue_name, message_id, delay=None):
         """
-        Changes the retry time of a message
+        Retries a job
 
         :param queue_name: the name of the queue
         :param message_id: the message id
         :param delay: delay (in seconds) of the next retry
         """
+        if delay is None:
+            # SQS will requeue the message automatically if no ACK was received
+            return
         queue = self.get_queue(queue_name)
 
         if not queue:

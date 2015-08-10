@@ -114,7 +114,7 @@ class TestBroker(object):
         adder.queue = 'default'
         adder.broker_id = '123456789'
 
-        broker.set_retry_time(adder, 10)
+        broker.retry(adder, 10)
 
         queues = list(broker.connector.retried_jobs.keys())
         assert len(queues) == 1

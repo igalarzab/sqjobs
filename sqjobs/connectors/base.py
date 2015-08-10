@@ -64,9 +64,9 @@ class Connector(object):
         raise NotImplementedError
 
     @abstractmethod
-    def set_retry_time(self, queue_name, message_id, delay):
+    def retry(self, queue_name, message_id, delay=None):
         """
-        Changes the retry time of a message
+        Retry a job
 
         :param queue_name: the name of the queue
         :param message_id: the message id

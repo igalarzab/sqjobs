@@ -23,7 +23,7 @@ class TestConnectorInterface(object):
             Connector.delete(dummy, 'demo', 'id')
 
         with pytest.raises(NotImplementedError):
-            Connector.set_retry_time(dummy, 'demo', 'id', 10)
+            Connector.retry(dummy, 'demo', 'id', 10)
 
         with pytest.raises(NotImplementedError):
             Connector.get_queues(dummy)
