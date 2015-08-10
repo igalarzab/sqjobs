@@ -8,11 +8,13 @@ logger = logging.getLogger('sqjobs.worker')
 
 
 class Worker(object):
+    DEFAULT_TIMEOUT = 20
 
-    def __init__(self, broker, queue_name):
+    def __init__(self, broker, queue_name, timeout=None):
         self.broker = broker
         self.queue_name = queue_name
         self.registered_jobs = {}
+        self.timeout = timeout or self.DEFAULT_TIMEOUT
 
     def __repr__(self):
         return 'Worker({connector})'.format(
