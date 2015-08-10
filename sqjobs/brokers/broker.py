@@ -5,7 +5,6 @@ from ..job import Job
 
 
 class Standard(Broker):
-
     def __init__(self, connector):
         self.connector = connector
 
@@ -23,10 +22,11 @@ class Standard(Broker):
         response = self.connector.enqueue(job_class.queue, payload)
         return job_id, response
 
-    def jobs(self, queue_name, timeout=20, nowait=False):
-        while True:
+    def jobs(self, queue_name, timeout=0, nowait=False, forever=True):
+        at_least_once = True
+        while at_least_once or forever:
+            at_least_once = False
             payload = self.connector.dequeue(queue_name, wait_time=timeout)
-
             if payload or nowait:
                 yield payload
 
