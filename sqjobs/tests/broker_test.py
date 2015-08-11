@@ -1,7 +1,7 @@
 import pytest
 
-from ..connectors.dummy import Dummy
-from ..brokers.broker import Standard
+from ..connectors.dummy import Dummy as DummyConnector
+from ..brokers.broker import Standard as StandardBroker
 from ..brokers.eager import Eager
 from .fixtures import Adder, Divider
 
@@ -10,16 +10,16 @@ class TestBroker(object):
 
     @property
     def connector(self):
-        return Dummy()
+        return DummyConnector()
 
     def test_broker_repr(self):
-        broker = Standard(self.connector)
+        broker = StandardBroker(self.connector)
         assert repr(broker) == 'Broker(Dummy)'
         broker = Eager()
         assert repr(broker) == 'Broker(Eager)'
 
     def test_add_jobs_to_broker(self):
-        broker = Standard(self.connector)
+        broker = StandardBroker(self.connector)
         broker.add_job(Adder, 2, 3)
 
         queues = list(broker.connector.jobs.keys())
@@ -31,12 +31,12 @@ class TestBroker(object):
         assert len(messages) == 1
 
     def test_add_invalid_job(self):
-        broker = Standard(self.connector)
+        broker = StandardBroker(self.connector)
         with pytest.raises(ValueError):
-            broker.add_job(Dummy, 2, 3)
+            broker.add_job(DummyConnector, 2, 3)
 
     def test_payload_args(self):
-        broker = Standard(self.connector)
+        broker = StandardBroker(self.connector)
         broker.add_job(Adder, 2, 3)
 
         message = broker.connector.jobs['default'][0]
@@ -53,7 +53,7 @@ class TestBroker(object):
         assert broker.add_job(Divider, 2, 0)[1].err == "ZeroDivisionError"
 
     def test_payload_kwargs(self):
-        broker = Standard(self.connector)
+        broker = StandardBroker(self.connector)
         broker.add_job(Adder, num2=2, num1=3)
 
         message = broker.connector.jobs['default'][0]
@@ -62,7 +62,7 @@ class TestBroker(object):
         assert message == payload
 
     def test_both_payloads(self):
-        broker = Standard(self.connector)
+        broker = StandardBroker(self.connector)
         broker.add_job(Adder, 2, num2=3)
 
         message = broker.connector.jobs['default'][0]
@@ -72,7 +72,7 @@ class TestBroker(object):
 
     def test_read_job(self):
         job_ids = []
-        broker = Standard(self.connector)
+        broker = StandardBroker(self.connector)
         job_ids.append(broker.add_job(Adder, 1, 1)[0])
         job_ids.append(broker.add_job(Adder, 2, 2)[0])
 
@@ -87,12 +87,12 @@ class TestBroker(object):
         assert jobs[1] == {'job_id': job_ids[0], 'args': (1, 1), 'kwargs': {}, 'name': 'adder'}
 
     def test_read_empty_jobs_without_waiting(self):
-        broker = Standard(self.connector)
+        broker = StandardBroker(self.connector)
         gen = broker.jobs('default', nowait=True)
         assert next(gen) is None
 
     def test_delete_job(self):
-        broker = Standard(self.connector)
+        broker = StandardBroker(self.connector)
         adder = Adder()
         adder.queue = 'default'
         adder.broker_id = '123456789'
@@ -109,7 +109,7 @@ class TestBroker(object):
         assert messages[0] == '123456789'
 
     def test_retry_time_job(self):
-        broker = Standard(self.connector)
+        broker = StandardBroker(self.connector)
         adder = Adder()
         adder.queue = 'default'
         adder.broker_id = '123456789'
@@ -126,7 +126,7 @@ class TestBroker(object):
         assert messages[0] == ('123456789', 10)
 
     def test_queues(self):
-        broker = Standard(self.connector)
+        broker = StandardBroker(self.connector)
 
         queues = broker.queues()
 
@@ -140,7 +140,7 @@ class TestBroker(object):
         assert queues[0] == 'default'
 
     def test_dead_letter_queues(self):
-        broker = Standard(self.connector)
+        broker = StandardBroker(self.connector)
 
         broker.add_job(Adder, 1, 2)
 

@@ -8,11 +8,13 @@ logger = logging.getLogger('sqjobs.worker')
 
 
 class Worker(object):
+    DEFAULT_TIMEOUT = 20
 
-    def __init__(self, broker, queue_name):
+    def __init__(self, broker, queue_name, timeout=None):
         self.broker = broker
         self.queue_name = queue_name
         self.registered_jobs = {}
+        self.timeout = timeout or self.DEFAULT_TIMEOUT
 
     def __repr__(self):
         return 'Worker({connector})'.format(
@@ -44,8 +46,8 @@ class Worker(object):
             self._handle_exception(job, args, kwargs, *sys.exc_info())
             self._change_retry_time(job)
 
-    def execute(self):
-        for payload in self.broker.jobs(self.queue_name):
+    def execute(self, forever=True):
+        for payload in self.broker.jobs(self.queue_name, self.timeout, forever=forever):
             job, args, kwargs = self._build_job(payload)
             self.execute_job(job, args, kwargs)
 
