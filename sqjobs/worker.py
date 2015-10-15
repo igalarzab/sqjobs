@@ -73,7 +73,11 @@ class Worker(object):
 
         job = job_class()
 
-        job.id = payload['job_id']
+        if 'job_id' in payload:
+            job.id = payload['job_id']
+        else:
+            job.id = payload['_metadata']['id']
+
         job.queue = self.queue_name
         job.broker_id = payload['_metadata']['id']
         job.retries = payload['_metadata']['retries']
