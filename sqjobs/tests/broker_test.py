@@ -50,7 +50,8 @@ class TestBroker(object):
 
     def test_eager_failure(self):
         broker = Eager()
-        assert broker.add_job(Divider, 2, 0)[1].err == "ZeroDivisionError"
+        with pytest.raises(ZeroDivisionError):
+            assert broker.add_job(Divider, 2, 0)[1].err == "ZeroDivisionError"
 
     def test_payload_kwargs(self):
         broker = StandardBroker(self.connector)

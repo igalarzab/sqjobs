@@ -1,3 +1,6 @@
+import sys
+import six
+
 from uuid import uuid4
 
 from .base import Broker
@@ -18,5 +21,6 @@ class Eager(Broker):
             eager_job.on_success(*args, **kwargs)
         except Exception as e:
             eager_job.on_failure(e, *args, **kwargs)
+            six.reraise(*sys.exc_info())
 
         return job_id, eager_job
