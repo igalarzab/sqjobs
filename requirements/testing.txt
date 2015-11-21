@@ -1,4 +1,0 @@
--r dev.txt
-
-django==1.7
-mock==1.3.0

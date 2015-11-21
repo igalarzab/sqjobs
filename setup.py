@@ -18,8 +18,7 @@ setup(
     platforms='any',
     install_requires=[req.strip() for req in open('requirements/base.txt').readlines()],
     classifiers=[
-        'Development Status :: 4 - Beta',
-        # 'Development Status :: 5 - Production/Stable',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: POSIX',
