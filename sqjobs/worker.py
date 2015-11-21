@@ -48,8 +48,11 @@ class Worker(object):
 
     def execute(self, forever=True):
         for payload in self.broker.jobs(self.queue_name, self.timeout, forever=forever):
-            job, args, kwargs = self._build_job(payload)
-            self.execute_job(job, args, kwargs)
+            try:
+                job, args, kwargs = self._build_job(payload)
+                self.execute_job(job, args, kwargs)
+            except:
+                logger.exception('Error building task')
 
     def _handle_exception(self, job, args, kwargs, *exc_info):
         exception_message = ''.join(
