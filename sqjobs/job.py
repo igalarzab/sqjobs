@@ -1,6 +1,8 @@
 from abc import ABCMeta, abstractmethod
 from six import add_metaclass
 
+from .exceptions import RetryException
+
 
 @add_metaclass(ABCMeta)
 class Job(object):
@@ -84,9 +86,6 @@ class Job(object):
     def retry(self, countdown=0, **kwargs):
         if countdown > 0:
             self.countdown = countdown
+
         self.retry_kwargs = kwargs
         raise RetryException
-
-
-class RetryException(Exception):
-    pass

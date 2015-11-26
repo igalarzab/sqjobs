@@ -44,7 +44,7 @@ class SQS(Connector):
     @property
     def connection(self):
         """
-        Creates (and saves in a cache) a SQS connection
+        Creates (and saves it in a cache) a SQS connection
         """
         if self._cached_connection is None:
             self._cached_connection = boto.sqs.connect_to_region(
