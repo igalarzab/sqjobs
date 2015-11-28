@@ -3,4 +3,4 @@ branch = true
 source = sqjobs
 omit =
     setup.py
-    examples/*.py
+    sqjobs/tests/*.py
