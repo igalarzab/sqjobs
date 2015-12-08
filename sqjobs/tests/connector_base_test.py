@@ -26,7 +26,4 @@ class TestConnectorInterface(object):
             Connector.retry(dummy, 'demo', 'id', 10)
 
         with pytest.raises(NotImplementedError):
-            Connector.get_queues(dummy)
-
-        with pytest.raises(NotImplementedError):
             Connector.get_dead_letter_queues(dummy)

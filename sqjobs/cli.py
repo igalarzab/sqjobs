@@ -8,12 +8,17 @@ Usage:
   sqjobs (-h | --help)
   sqjobs --version
 
+Options:
+  --jobs=<module>               Python module where jobs are located [default: .jobs]
+
 AWS SQS Options:
   --aws-access-key=<ak>         Access key to access SQS
   --aws-secret-key=<sk>         Secret key to access SQS
   --aws-region=<region>         AWS Region [default: us-west-1]
-  --aws-port=<port>             Port where SQS is located [default: 443]
-  --aws-is-secure=<is_secure>   If the connections runs behind SSL [default: 1]
+  --aws-use-ssl=<use_ssl>       If the connections runs behind SSL [default: 1]
+
+Utils:
+  --sentry-dsn=<sentry_dsn>     Sentry DSN to report exceptions (raven must be installed)
 
 Other options:
   -h --help              Show this screen.
@@ -21,10 +26,12 @@ Other options:
 """
 
 import logging
+
 from docopt import docopt
 
+from .contrib.sentry import create_raven_client, register_sentry
 from .metadata import __version__
-from .worker import create_sqs_worker
+from .utils import create_sqs_worker, get_jobs_from_module
 
 
 def get_worker_config(broker, arguments):
@@ -35,15 +42,13 @@ def get_worker_config(broker, arguments):
         'access_key': arguments['--aws-access-key'],
         'secret_key': arguments['--aws-secret-key'],
         'region': arguments['--aws-region'],
-        'port': int(arguments['--aws-port']),
-        'is_secure': int(arguments['--aws-is-secure']),
+        'use_ssl': int(arguments['--aws-use-ssl']),
     }
 
     if not config['access_key'] or not config['secret_key']:
         raise ValueError('--aws-access-key and --aws-secret-key are mandatory for SQS')
 
     return config
-
 
 
 def main(arguments):
@@ -55,12 +60,24 @@ def main(arguments):
         **worker_config
     )
 
-    worker.execute()
+    for job in get_jobs_from_module(arguments['--jobs']):
+        worker.register_job(job)
+
+    if arguments['--sentry-dsn']:
+        register_sentry(
+            create_raven_client(arguments['--sentry-dsn']),
+            worker
+        )
+
+    worker.run()
 
 
 if __name__ == '__main__':
-    logger = logging.getLogger('sqjobs')
-    logging.basicConfig(format='[%(asctime)-15s] %(message)s', level='INFO')
+    logging.basicConfig(
+        format='[%(asctime)s][%(name)s] %(message)s',
+        level='INFO',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
 
     args = docopt(__doc__, version=__version__)
     main(args)

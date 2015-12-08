@@ -20,48 +20,22 @@ First you have to create jobs. A job is simply a class that inherits from ``Job`
 from sqjobs import Job
 
 class Adder(Job):
+    queue = 'queue_name'
+
     def run(self, num1, num2):
         return num1 + num2
 ```
 
-## Sample Job
-
-```python
-from sqjobs.job import Job
-
-class AdderJob(Job):
-    name = 'adder_job'
-    queue = 'my_queue'
-
-    def run(self, *args, **kwargs):
-        return sum(args)
-```
-
-# Launching a Job
+Then, you can launch the job creating a new broker.
 
 ```python
 from sqjobs import create_sqs_broker
-from myapp.jobs import AdderJob
 
-kwargs = {
+config = {
     'access_key': settings.SQJOBS_SQS_ACCESS_KEY,
     'secret_key': settings.SQJOBS_SQS_ACCESS_KEY
 }
-broker = create_sqs_broker(**kwargs)
-broker.add_job(AdderJob, *[1, 2, 3, 4])
-```
 
-# Eager mode
-
-Eager mode is a simpler execution mode. Tasks are run synchronously by the broker itself so there is no need for a queue nor running workers. It's meant for development and unit testing.
-
-```python
->>> from sqjobs import create_eager_broker
->>> broker = create_eager_broker()
->>> from jobs import AdderJob
->>> job_added = broker.add_job(AdderJob, *[1, 2, 3])
->>> job_added 
-('fdb005d3-276f-4f75-8e8e-c8fcde67043c', AdderJob())
->>> job_added[1].result
-6
+broker = create_sqs_broker(**config)
+broker.add_job(AdderJob, 1, 2, queue_name='other_queue_name')
 ```

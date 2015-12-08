@@ -34,8 +34,7 @@ class Command(BaseCommand):
             access_key=settings.SQJOBS_SQS_ACCESS_KEY,
             secret_key=settings.SQJOBS_SQS_SECRET_KEY,
             region=settings.SQJOBS_SQS_REGION,
-            is_secure=getattr(settings, 'SQJOBS_SQS_IS_SECURE', True),
-            port=getattr(settings, 'SQJOBS_SQS_CONNECTION_PORT', 443),
+            use_ssl=getattr(settings, 'SQJOBS_SQS_USE_SSL', True),
         )
 
         register_all_jobs(worker)
@@ -50,8 +49,7 @@ class Command(BaseCommand):
                 access_key=settings.SQJOBS_SQS_ACCESS_KEY,
                 secret_key=settings.SQJOBS_SQS_SECRET_KEY,
                 region=settings.SQJOBS_SQS_REGION,
-                is_secure=getattr(settings, 'SQJOBS_SQS_IS_SECURE', True),
-                port=getattr(settings, 'SQJOBS_SQS_CONNECTION_PORT', 443),
+                use_ssl=getattr(settings, 'SQJOBS_SQS_USE_SSL', True),
             )
         beat = Beat(broker, int(sleep_interval), skip_jobs)
         register_all_jobs(beat)

@@ -6,86 +6,75 @@ from .exceptions import RetryException
 
 @add_metaclass(ABCMeta)
 class Job(object):
+    """
+    A simple queue job.
+
+    Class attributes:
+        * name: Name of the job. This name must be as unique as possible. Workers will decide
+          which code to execute based on this name.
+        * default_queue_name: Queue name where the job will be executed if one is not specified
+          when adding the job to the broker.
+        * abstract: Jobs marked as abstract will not be included by workers.
+        * retry_time: Time (in seconds) used to define how long the message will be locked
+          until other worker could retry the job. If None, it will use the queue's default value.
+
+    Object attributes:
+        * id: Unique ID of the job.
+        * broker_id: Unique ID of the job given by the broker.
+        * queue_name: Queue where the job has been added.
+        * retries: How many retries has been done by the job.
+        * created_on: When the job was enqueued for the first time.
+    """
     name = None
-    """
-    Set this property to `True` if you define a base class in your application
-    that will be inherited for the real jobs you want.
-    """
+    default_queue_name = 'sqjobs'
     abstract = False
-    queue = 'sqjobs'
-    """
-    Time used to define how much time the message will be locked until other
-    worker could retry the job
-    """
-    retry_time = None  # None means use queue's default value
-    """
-    Define how much time a message will be locked while the message is being consumed
-    to avoid other workers consume and execute the same job at the same time
-    """
-    lock_time = None  # None means use queue's default value
-    """
-    Extra time to be added only for retries
-    """
-    countdown = None
-    """
-    Extra arguments passed to the `retry` function. May be used on the `on_retry`
-    callbacks
-    """
-    retry_kwargs = None
+    retry_time = None
 
     def __init__(self):
         self.id = None
+        self.broker_id = None
+        self.queue_name = None
         self.retries = 0
         self.created_on = None
-        self.first_execution_on = None
 
     def __repr__(self):
         return '{0}()'.format(type(self).__name__)
 
-    def next_retry(self):
-        if self.countdown is not None:
-            if self.retry_time is not None:
-                return self.retry_time + self.countdown
-            return self.countdown
-        return self.retry_time
-
-    def on_success(self, *args, **kwargs):
+    def pre_run(self, *args, **kwargs):
         pass
-
-    def on_failure(self, *args, **kwargs):
-        pass
-
-    def on_retry(self):
-        pass
-
-    def set_up(self, *args, **kwargs):
-        pass
-
-    def tear_down(self, *args, **kwargs):
-        pass
-
-    def execute(self, *args, **kwargs):
-        self.set_up(*args, **kwargs)
-        self.result = self.run(*args, **kwargs)
-        self.tear_down(*args, **kwargs)
 
     @abstractmethod
     def run(self, *args, **kwargs):
         raise NotImplementedError
 
-    @classmethod
-    def _default_task_name(cls):
-        module = cls.__module__
-        name = cls.__name__
-        return '{0}|{1}'.format(module, name)
+    def post_run(self, *args, **kwargs):
+        pass
+
+    def execute(self, *args, **kwargs):
+        self.pre_run(*args, **kwargs)
+        self.result = self.run(*args, **kwargs)
+        self.post_run(*args, **kwargs)
+
+    def on_success(self):
+        pass
+
+    def on_failure(self):
+        pass
+
+    def on_retry(self):
+        pass
+
+    def retry(self):
+        raise RetryException
+
+    def next_retry_time(self):
+        return self.retry_time
 
     @classmethod
     def _task_name(cls):
-        return cls.name if cls.name else cls._default_task_name()
+        name = cls.name
 
-    def retry(self, countdown=0, **kwargs):
-        if countdown > 0:
-            self.countdown = countdown
+        if not name:
+            name = '{0}|{1}'.format(cls.__module__, cls.__name__)
 
-        self.retry_kwargs = kwargs
-        raise RetryException
+        return name

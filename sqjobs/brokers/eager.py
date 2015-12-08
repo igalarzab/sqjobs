@@ -12,9 +12,8 @@ class Eager(Broker):
         return 'Broker(Eager)'
 
     def add_job(self, job_class, *args, **kwargs):
-        job_id = str(uuid4())
         eager_job = job_class()
-        eager_job.id = job_id
+        eager_job.id = str(uuid4())
 
         try:
             eager_job.execute(*args, **kwargs)

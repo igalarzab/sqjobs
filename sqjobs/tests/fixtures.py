@@ -16,13 +16,13 @@ class Divider(Job):
     queue = 'default'
     retry_time = 10
 
+    def pre_run(self, num1, *args, **kwargs):
+        self.num1 = num1 + 1
+
     def run(self, num1, num2):
         return self.num1 // num2
 
-    def set_up(self, num1, *args, **kwargs):
-        self.num1 = num1 + 1
-
-    def tear_down(self, *args, **kwargs):
+    def post_run(self, *args, **kwargs):
         self.result = str(self.result)
 
     def on_failure(self, *args, **kwargs):

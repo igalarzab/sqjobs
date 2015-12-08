@@ -17,13 +17,13 @@ class ResultJob(Job):
         self.repeated_task = False
 
     def execute(self, *args, **kwargs):
-        self.set_up(*args, **kwargs)
+        self.pre_run(*args, **kwargs)
         if not self.repeated_task:
             self.result = self.run(*args, **kwargs)
-            self.tear_down(*args, **kwargs)
+            self.post_run(*args, **kwargs)
 
-    def set_up(self, *args, **kwargs):
-        super(ResultJob, self).set_up(*args, **kwargs)
+    def pre_run(self, *args, **kwargs):
+        super(ResultJob, self).pre_run(*args, **kwargs)
         # Take as id the left part from the hash symbol
         task_id = self.id.split('#')[0]
         try:
@@ -46,11 +46,11 @@ class ResultJob(Job):
     def run(self, *args, **kwargs):
         raise NotImplementedError
 
-    def tear_down(self, *args, **kwargs):
+    def post_run(self, *args, **kwargs):
         self.job_status.date_done = datetime.now()
         self.job_status.result = json.dumps(self.result)
         self.job_status.save(force_update=True)
-        super(ResultJob, self).tear_down(*args, **kwargs)
+        super(ResultJob, self).post_run(*args, **kwargs)
 
     def on_success(self, *args, **kwargs):
         if not self.repeated_task:

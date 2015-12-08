@@ -16,7 +16,7 @@ class TestJobDefaults(object):
         assert Job.name is None
 
     def test_default_name_generator(self):
-        assert Job._default_task_name() == 'sqjobs.job|Job'
+        assert Job._task_name() == 'sqjobs.job|Job'
 
     def test_is_abstract_class(self):
         with pytest.raises(TypeError):
@@ -60,7 +60,6 @@ class TestJobExample(object):
     def test_job_names(self):
         adder = Adder()
         assert adder.name == 'adder'
-        assert adder._default_task_name() == 'sqjobs.tests.fixtures|Adder'
         assert adder._task_name() == 'adder'
 
     def test_simple_next_retry(self):
@@ -75,11 +74,10 @@ class TestJobRetry(object):
 
         assert adder.next_retry() == 10
         with pytest.raises(RetryException):
-            adder.retry(countdown=10, kwargs=expected_kwargs)
+            adder.retry(countdown=10)
 
         assert adder.countdown == 10
         assert adder.next_retry() == 10 + adder.countdown
-        assert adder.retry_kwargs == {'kwargs': expected_kwargs}
 
 
 class TestComplexRetries(object):

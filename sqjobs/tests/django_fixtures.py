@@ -10,8 +10,8 @@ class ResultDivider(ResultJob):
     def __init__(self):
         super(ResultDivider, self).__init__()
 
-    def set_up(self, *args, **kwargs):
-        super_setup = super(ResultDivider, self).set_up(*args, **kwargs)
+    def pre_run(self, *args, **kwargs):
+        super_setup = super(ResultDivider, self).pre_run(*args, **kwargs)
         return super_setup
 
     def run(self, num1, num2, *args, **kwargs):

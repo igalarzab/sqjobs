@@ -172,7 +172,7 @@ class ResultJobsTests(DjangoTestCase):
         result_divider = ResultDivider()
         result_divider.id = '1234'
         self.assertFalse(result_divider.properly_setup)
-        result_divider.set_up()
+        result_divider.pre_run()
         self.assertEqual(repr(result_divider.job_status),
             '<JobStatus (ResultDivider()): 1234 status->PENDING>'
         )
@@ -197,6 +197,6 @@ class ResultJobsTests(DjangoTestCase):
         result_divider.on_failure()
         self.assertEqual(result_divider.job_status.status, JobStatus.FAILURE)
         self.assertEqual(result_divider.err, 'ZeroDivisionError')
-        result_divider.tear_down()
+        result_divider.post_run()
         self.assertLessEqual(result_divider.job_status.date_done, datetime.now())
         self.assertEqual(result_divider.job_status.result, '3')
