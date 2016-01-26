@@ -34,7 +34,7 @@ class Dummy(Connector):
         self.deleted_jobs.setdefault(queue_name, []).append(message_id)
         self.num_deleted_jobs += 1
 
-    def retry(self, queue_name, message_id, delay=0):
+    def retry(self, queue_name, message_id, delay):
         self.retried_jobs.setdefault(queue_name, []).append((message_id, delay))
         self.num_retried_jobs += 1
 

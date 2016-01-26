@@ -6,6 +6,9 @@ from ..job import JobResult
 
 
 class Eager(Broker):
+    """
+    Broker to execute jobs in a synchronous way
+    """
 
     def __repr__(self):
         return 'Broker(Eager)'

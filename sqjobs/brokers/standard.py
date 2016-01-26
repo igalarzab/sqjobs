@@ -3,6 +3,10 @@ from ..job import Job, JobResult
 
 
 class Standard(Broker):
+    """
+    Standard broker to execute jobs in an asynchronous way
+    """
+
     def __init__(self, connector):
         self.connector = connector
 

@@ -40,7 +40,7 @@ class Connector(object):
         raise NotImplementedError
 
     @abstractmethod
-    def retry(self, queue_name, message_id, delay=0):
+    def retry(self, queue_name, message_id, delay):
         """
         Tell the connector to retry a job
 

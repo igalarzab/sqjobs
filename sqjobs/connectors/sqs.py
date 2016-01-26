@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 import json
 
 import boto3
@@ -20,8 +20,8 @@ class SQS(Connector):
         """
         Creates a new SQS object
 
-        :param access_key: access key with access to SQS
-        :param secret_key: secret key with access to SQS
+        :param access_key: access key with write access to AWS SQS
+        :param secret_key: secret key with write access to AWS SQS
         :param region: a region name, like 'us-east-1'
         :param use_ssl: set to `True` when the connection is behind SSL
         """
@@ -54,7 +54,7 @@ class SQS(Connector):
                 use_ssl=self.use_ssl,
             )
 
-            logger.debug('Created new connection to SQS')
+            logger.debug('Created a new connection to SQS')
 
         return self._cached_connection
 
@@ -106,11 +106,7 @@ class SQS(Connector):
 
         logger.info('Deleted message from queue %s', queue_name)
 
-    def retry(self, queue_name, message_id, delay=0):
-        if not delay:
-            # SQS will requeue the message automatically if no ACK was received
-            return
-
+    def retry(self, queue_name, message_id, delay):
         queue = self._get_queue(queue_name)
 
         if not queue:
@@ -147,11 +143,11 @@ class SQS(Connector):
             return None
 
     def _encode_message(self, payload):
-        payload_str = json.dumps(payload)
+        payload_str = json.dumps(payload, default=self._json_formatter)
         return payload_str
 
     def _decode_message(self, message):
-        payload = json.loads(message.body)
+        payload = json.loads(message.body, default=self._json_formatter)
 
         retries = int(message.attributes['ApproximateReceiveCount'])
         created_on = int(message.attributes['SentTimestamp'])
@@ -165,3 +161,11 @@ class SQS(Connector):
         logging.debug('Message payload: %s', str(payload))
 
         return payload
+
+    def _json_formatter(obj):
+        if isinstance(obj, datetime):
+            return obj.strftime('%Y-%m-%d %H:%M:%S')
+        elif isinstance(obj, date):
+            return obj.strftime('%Y-%m-%d')
+
+        return None
