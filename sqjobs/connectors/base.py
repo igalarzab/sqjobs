@@ -21,7 +21,7 @@ class Connector(object):
     @abstractmethod
     def dequeue(self, queue_name, wait_time=20):
         """
-        Receive the next message from a queue
+        Receives the next message from a queue
 
         :param queue_name: the queue name
         :param wait_time: how much time to wait until a new message is retrieved (long polling).
@@ -42,7 +42,7 @@ class Connector(object):
     @abstractmethod
     def retry(self, queue_name, message_id, delay=0):
         """
-        Retry a job
+        Tell the connector to retry a job
 
         :param queue_name: the name of the queue
         :param message_id: the message id
@@ -50,9 +50,22 @@ class Connector(object):
         """
         raise NotImplementedError
 
-    def unseralize_job(self, job_class, queue_name, payload):
+    @abstractmethod
+    def serialize_job(self, job_class, job_id, args, kwargs):
         """
-        Build a job given a payload
+        Serialize a job into a string to be sent to the connector
+
+        :param job_class: Python class of the payload job
+        :param job_id: the ID of the job
+        :param args: arguments of the job
+        :param kwargs: keyword arguments of the job
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def unserialize_job(self, job_class, queue_name, payload):
+        """
+        Build a job given a payload returned from the connector
 
         :param job_class: Python class of the payload job
         :param queue_name: queue where the job was located

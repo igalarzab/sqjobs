@@ -8,5 +8,6 @@
 /build/
 
 # coverage
+.cache
 .coverage
 htmlcov/

@@ -38,5 +38,27 @@ class Dummy(Connector):
         self.retried_jobs.setdefault(queue_name, []).append((message_id, delay))
         self.num_retried_jobs += 1
 
+    def serialize_job(self, job_class, job_id, args, kwargs):
+        return {
+            'id': job_id,
+            'name': job_class._task_name(),
+            'args': args,
+            'kwargs': kwargs
+        }
+
+    def unserialize_job(self, job_class, queue_name, payload):
+        job = job_class()
+
+        job.id = payload['id']
+        job.queue_name = queue_name
+        job.broker_id = payload['_metadata']['id']
+        job.retries = payload['_metadata']['retries']
+        job.created_on = payload['_metadata']['created_on']
+        args = payload['args'] or []
+        kwargs = payload['kwargs'] or {}
+
+        return job, args, kwargs
+
+
     def _get_queue(self, name):
         return self.jobs.setdefault(name, [])

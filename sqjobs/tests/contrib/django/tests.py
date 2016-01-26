@@ -1,13 +1,13 @@
 from django.test import TestCase
 from django.core.management import call_command
-from ..brokers.broker import Standard
-from ..brokers.eager import Eager
+from sqjobs.brokers.standard import Standard
+from sqjobs.brokers.eager import Eager
 from sqjobs.contrib.django.djsqjobs.beat import Beat
 from sqjobs.contrib.django.djsqjobs.models import PeriodicJob
 from sqjobs.contrib.django.djsqjobs.models import JobStatus
 
 
-from .fixtures import Adder, Divider
+from ...fixtures import Adder, Divider
 from .django_fixtures import ResultDivider
 
 from datetime import datetime

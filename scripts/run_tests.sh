@@ -2,6 +2,5 @@
 
 set -e
 
-py.test --cov .
-
-python -m sqjobs.tests.django_contrib
+py.test --verbose --cov .
+python -m sqjobs.tests.contrib.django.django_contrib

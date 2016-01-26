@@ -3,8 +3,7 @@ from ..job import Job
 
 class Adder(Job):
     name = 'adder'
-    queue = 'default'
-    # We set this time so it's re-queued in Dummy connector
+    default_queue_name = 'sqjobs'
     retry_time = 10
 
     def run(self, num1, num2):
@@ -13,19 +12,19 @@ class Adder(Job):
 
 class Divider(Job):
     name = 'divider'
-    queue = 'default'
+    default_queue_name = 'sqjobs'
     retry_time = 10
 
-    def pre_run(self, num1, *args, **kwargs):
+    def pre_run(self, num1, num2):
         self.num1 = num1 + 1
 
     def run(self, num1, num2):
         return self.num1 // num2
 
-    def post_run(self, *args, **kwargs):
+    def post_run(self, num1, num2):
         self.result = str(self.result)
 
-    def on_failure(self, *args, **kwargs):
+    def on_failure(self):
         self.err = 'ZeroDivisionError'
 
 
@@ -59,7 +58,6 @@ class RetryJob(Job):
 class ExceptionJob(Job):
     name = 'exception'
     failed_callback_called = False
-    # We set this time so it's re-queued in Dummy connector
     retry_time = 10
 
     @classmethod
@@ -97,5 +95,5 @@ class ComplexRetryJob(Adder):
     name = 'complex'
     retry_time = 10
 
-    def next_retry(self):
+    def next_retry_time(self):
         return (self.retries + 1) * self.retry_time

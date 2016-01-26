@@ -2,4 +2,4 @@
 
 set -e
 
-py.test --cov . --cov-report=html
+py.test --verbose --cov --cov-report=html .

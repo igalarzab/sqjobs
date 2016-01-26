@@ -58,9 +58,9 @@ class ResultJob(Job):
             self.job_status.save(force_update=True)
             super(ResultJob, self).on_success(*args, **kwargs)
 
-    def on_failure(self, *args, **kwargs):
+    def on_failure(self):
         if not self.repeated_task:
             if self.properly_setup:
                 self.job_status.status = JobStatus.FAILURE
                 self.job_status.save(force_update=True)
-            super(ResultJob, self).on_failure(*args, **kwargs)
+            super(ResultJob, self).on_failure()

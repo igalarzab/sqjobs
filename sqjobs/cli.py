@@ -64,10 +64,8 @@ def main(arguments):
         worker.register_job(job)
 
     if arguments['--sentry-dsn']:
-        register_sentry(
-            create_raven_client(arguments['--sentry-dsn']),
-            worker
-        )
+        raven_client = create_raven_client(arguments['--sentry-dsn'])
+        register_sentry(raven_client, worker)
 
     worker.run()
 

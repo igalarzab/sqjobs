@@ -1,5 +1,5 @@
-from .. import create_sqs_broker, create_sqs_worker
-from ..brokers.broker import Standard
+from ..brokers.standard import Standard
+from ..utils import create_sqs_broker, create_sqs_worker
 from ..worker import Worker
 from ..connectors.sqs import SQS
 
@@ -15,7 +15,6 @@ class TestBuilders(object):
         assert broker.connector.access_key == 'access'
         assert broker.connector.secret_key == 'secret'
         assert broker.connector.region == 'us-west-1'
-        assert broker.connector.port == 443
 
     def test_worker_builder(self):
         worker = create_sqs_worker('queue_name', 'access', 'secret')
@@ -28,4 +27,3 @@ class TestBuilders(object):
         assert worker.broker.connector.access_key == 'access'
         assert worker.broker.connector.secret_key == 'secret'
         assert worker.broker.connector.region == 'us-west-1'
-        assert worker.broker.connector.port == 443

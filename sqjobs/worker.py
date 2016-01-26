@@ -1,7 +1,7 @@
 import sys
 import traceback
 
-from .job import RetryException
+from .exceptions import RetryException
 
 import logging
 logger = logging.getLogger('sqjobs.worker')
@@ -67,9 +67,9 @@ class Worker(object):
         )
 
         logger.error(exception_message, exc_info=True, extra={
+            'job_queue_name': job.queue_name,
             'job_id': job.id,
             'job_name': job.name,
-            'job_arguments': args,
-            'job_kwarguments': kwargs,
-            'job_queue_name': job.queue_name,
+            'job_args': args,
+            'job_kwargs': kwargs,
         })

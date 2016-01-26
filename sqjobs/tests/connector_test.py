@@ -11,9 +11,6 @@ class TestConnectorInterface(object):
         dummy = Dummy()
 
         with pytest.raises(NotImplementedError):
-            Connector.get_queue(dummy, 'demo')
-
-        with pytest.raises(NotImplementedError):
             Connector.enqueue(dummy, 'demo', {})
 
         with pytest.raises(NotImplementedError):
@@ -26,4 +23,7 @@ class TestConnectorInterface(object):
             Connector.retry(dummy, 'demo', 'id', 10)
 
         with pytest.raises(NotImplementedError):
-            Connector.get_dead_letter_queues(dummy)
+            Connector.serialize_job(dummy, dummy, 'job_id', 'args', {})
+
+        with pytest.raises(NotImplementedError):
+            Connector.unserialize_job(dummy, dummy, 'demo', 'payload')

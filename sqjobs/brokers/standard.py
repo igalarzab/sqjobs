@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from .base import Broker
 from ..job import Job
 
@@ -14,7 +12,7 @@ class Standard(Broker):
         )
 
     def add_job(self, job_class, *args, **kwargs):
-        job_id = str(uuid4())
+        job_id = self.gen_job_id()
         queue_name = kwargs.get('queue_name', job_class.default_queue_name)
 
         payload = self.serialize_job(job_class, job_id, args, kwargs)
@@ -33,9 +31,3 @@ class Standard(Broker):
             payload = self.connector.dequeue(queue_name, wait_time=timeout)
             if payload or not timeout:
                 yield payload
-
-    def serialize_job(self, job_class, job_id, args, kwargs):
-        return self.connector.serialize_job(job_class, job_id, args, kwargs)
-
-    def unserialize_job(self, job_class, queue_name, payload):
-        return self.connector.unserialize_job(job_class, queue_name, payload)

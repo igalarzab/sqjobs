@@ -7,7 +7,7 @@ from .fixtures import Adder, Divider, ComplexRetryJob
 class TestJobDefaults(object):
 
     def test_default_queue_name(self):
-        assert Job.queue == 'sqjobs'
+        assert Job.default_queue_name == 'sqjobs'
 
     def test_no_default_retry_time(self):
         assert Job.retry_time is None
@@ -37,11 +37,10 @@ class TestJobExample(object):
         assert adder.id is None
         assert adder.retries == 0
         assert adder.created_on is None
-        assert adder.first_execution_on is None
 
     def test_overwritten_default_queue(self):
         adder = Adder()
-        assert adder.queue == 'default'
+        assert adder.default_queue_name == 'sqjobs'
 
     def test_run_job_directly(self):
         adder = Adder()
@@ -64,20 +63,7 @@ class TestJobExample(object):
 
     def test_simple_next_retry(self):
         adder = Adder()
-        assert adder.next_retry() == 10
-
-
-class TestJobRetry(object):
-    def test_retry(self):
-        adder = Adder()
-        expected_kwargs = {'test': 'test'}
-
-        assert adder.next_retry() == 10
-        with pytest.raises(RetryException):
-            adder.retry(countdown=10)
-
-        assert adder.countdown == 10
-        assert adder.next_retry() == 10 + adder.countdown
+        assert adder.next_retry_time() == 10
 
 
 class TestComplexRetries(object):
@@ -85,10 +71,10 @@ class TestComplexRetries(object):
     def test_first_complex_retry(self):
         job = ComplexRetryJob()
         assert job.retry_time == 10
-        assert job.next_retry() == 10
+        assert job.next_retry_time() == 10
 
     def test_second_complex_retry(self):
         job = ComplexRetryJob()
         job.retries = 1
 
-        assert job.next_retry() == 20
+        assert job.next_retry_time() == 20
