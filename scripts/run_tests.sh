@@ -3,4 +3,4 @@
 set -e
 
 py.test --verbose --cov .
-python -m sqjobs.tests.contrib.django.django_contrib
+#python -m sqjobs.tests.contrib.django.django_contrib

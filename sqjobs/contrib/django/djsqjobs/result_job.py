@@ -1,5 +1,5 @@
 import json
-from abc import abstractmethod, ABCMeta
+from abc import ABCMeta
 from six import add_metaclass
 from datetime import datetime
 
@@ -28,6 +28,7 @@ class ResultJob(Job):
 
     def pre_run(self, *args, **kwargs):
         super(ResultJob, self).pre_run(*args, **kwargs)
+
         # Take as id the left part from the hash symbol
         task_id = self.id.split('#')[0]
         try:

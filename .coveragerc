@@ -4,3 +4,4 @@ source = sqjobs
 omit =
     setup.py
     sqjobs/tests/*.py
+    sqjobs/contrib/django/*.py
