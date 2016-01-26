@@ -52,8 +52,10 @@ class Job(object):
 
     def execute(self, *args, **kwargs):
         self.pre_run(*args, **kwargs)
-        self.result = self.run(*args, **kwargs)
+        res = self.result = self.run(*args, **kwargs)
         self.post_run(*args, **kwargs)
+
+        return res
 
     def on_success(self):
         pass
@@ -78,3 +80,19 @@ class Job(object):
             name = '{0}|{1}'.format(cls.__module__, cls.__name__)
 
         return name
+
+
+class JobResult(object):
+    """
+    Result of adding a job to a broker.
+
+    Object attributes:
+        * job_id: Unique ID of the job.
+        * broker_id: Unique ID of the job given by the broker.
+        * result: Result of the execution (used by Eager mode).
+    """
+
+    def __init__(self):
+        self.job_id = None
+        self.broker_id = None
+        self.result = None

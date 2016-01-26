@@ -1,5 +1,5 @@
 from .base import Broker
-from ..job import Job
+from ..job import Job, JobResult
 
 
 class Standard(Broker):
@@ -18,7 +18,10 @@ class Standard(Broker):
         payload = self.serialize_job(job_class, job_id, args, kwargs)
         self.connector.enqueue(queue_name, payload)
 
-        return job_id
+        result = JobResult()
+        result.job_id = job_id
+
+        return result
 
     def delete_job(self, job):
         self.connector.delete(job.queue_name, job.broker_id)

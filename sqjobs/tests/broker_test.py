@@ -76,8 +76,8 @@ class TestStandardBroker(object):
             jobs.append(next(gen))
 
         assert len(jobs) == 2
-        assert jobs[0] == {'id': job_ids[1], 'args': (2, 2), 'kwargs': {}, 'name': 'adder'}
-        assert jobs[1] == {'id': job_ids[0], 'args': (1, 1), 'kwargs': {}, 'name': 'adder'}
+        assert jobs[0] == {'id': job_ids[1].job_id, 'args': (2, 2), 'kwargs': {}, 'name': 'adder'}
+        assert jobs[1] == {'id': job_ids[0].job_id, 'args': (1, 1), 'kwargs': {}, 'name': 'adder'}
 
 
 class TestEagerBroker(object):
@@ -85,6 +85,11 @@ class TestEagerBroker(object):
     def test_broker_repr(self):
         broker = EagerBroker()
         assert repr(broker) == 'Broker(Eager)'
+
+    def test_execute_job_eager_mode(self):
+        broker = EagerBroker()
+        result = broker.add_job(Adder, 2, 3)
+        assert result.result == 5
 
     def test_eager_failure(self):
         broker = EagerBroker()
