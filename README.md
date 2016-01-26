@@ -31,11 +31,6 @@ Then, you can launch the job creating a new broker.
 ```python
 from sqjobs import create_sqs_broker
 
-config = {
-    'access_key': settings.SQJOBS_SQS_ACCESS_KEY,
-    'secret_key': settings.SQJOBS_SQS_ACCESS_KEY
-}
-
-broker = create_sqs_broker(**config)
+broker = create_sqs_broker(access_key='ak', secret_key='sk')
 broker.add_job(AdderJob, 1, 2, queue_name='other_queue_name')
 ```
