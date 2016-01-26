@@ -1,15 +1,16 @@
 import importlib
 
 from django.db.models.loading import get_apps
-
-from sqjobs import Job
 from sqjobs.utils import get_jobs_from_module
 
 import logging
-logger = logging.getLogger('sqjobs.contrib.django')
+logger = logging.getLogger('sqjobs.contrib.django.utils')
 
 
 def register_all_jobs(worker):
+    """
+    Register all the jobs in a worker
+    """
     jobs = get_all_jobs()
 
     for job in jobs:
@@ -19,6 +20,9 @@ def register_all_jobs(worker):
 
 
 def get_all_jobs():
+    """
+    Get all the jobs of the django INSTALLED_APPS
+    """
     jobs = []
 
     for app in get_apps():

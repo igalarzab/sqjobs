@@ -1,17 +1,20 @@
-import time
 import json
+import time
 from datetime import datetime, timedelta
 from pytz import timezone
-import logging
 
 from django.db import transaction
 
 from .models import PeriodicJob
 
-logger = logging.getLogger('sqjobs.beat')
+import logging
+logger = logging.getLogger('sqjobs.contrib.django.beat')
 
 
 class Beat(object):
+    """
+    A cron-like worker that execute scheduled jobs
+    """
 
     def __init__(self, broker, sleep_interval=10, skip_delayed_jobs=True):
         self.broker = broker

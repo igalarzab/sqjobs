@@ -11,6 +11,9 @@ from sqjobs.contrib.django.djsqjobs.models import JobStatus
 
 @add_metaclass(ABCMeta)
 class ResultJob(Job):
+    """
+    A job that stores the result of the execution in the DB
+    """
 
     def __init__(self):
         self.properly_setup = False
@@ -18,6 +21,7 @@ class ResultJob(Job):
 
     def execute(self, *args, **kwargs):
         self.pre_run(*args, **kwargs)
+
         if not self.repeated_task:
             self.result = self.run(*args, **kwargs)
             self.post_run(*args, **kwargs)
@@ -41,10 +45,6 @@ class ResultJob(Job):
                 self.properly_setup = True
             else:
                 self.repeated_task = True
-
-    @abstractmethod
-    def run(self, *args, **kwargs):
-        raise NotImplementedError
 
     def post_run(self, *args, **kwargs):
         self.job_status.date_done = datetime.now()

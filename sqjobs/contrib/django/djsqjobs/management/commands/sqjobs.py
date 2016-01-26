@@ -41,16 +41,12 @@ class Command(BaseCommand):
         worker.execute()
 
     def _execute_beat(self, sleep_interval, skip_jobs=True):
-        broker = None
-        if getattr(settings, 'SQJOBS_EAGER', False):
-            broker = create_eager_broker()
-        else:
-            broker = create_sqs_broker(
-                access_key=settings.SQJOBS_SQS_ACCESS_KEY,
-                secret_key=settings.SQJOBS_SQS_SECRET_KEY,
-                region=settings.SQJOBS_SQS_REGION,
-                use_ssl=getattr(settings, 'SQJOBS_SQS_USE_SSL', True),
-            )
+        broker = create_sqs_broker(
+            access_key=settings.SQJOBS_SQS_ACCESS_KEY,
+            secret_key=settings.SQJOBS_SQS_SECRET_KEY,
+            region=settings.SQJOBS_SQS_REGION,
+            use_ssl=getattr(settings, 'SQJOBS_SQS_USE_SSL', True),
+        )
         beat = Beat(broker, int(sleep_interval), skip_jobs)
         register_all_jobs(beat)
         beat.run_forever()
