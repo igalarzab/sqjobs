@@ -20,7 +20,7 @@ First you have to create jobs. A job is simply a class that inherits from ``Job`
 from sqjobs import Job
 
 class Adder(Job):
-    queue = 'queue_name'
+    default_queue_name = 'queue_name'
 
     def run(self, num1, num2):
         return num1 + num2
