@@ -1,10 +1,22 @@
 import importlib
 
-from django.db.models.loading import get_apps
 from sqjobs.utils import get_jobs_from_module
 
 import logging
 logger = logging.getLogger('sqjobs.contrib.django.utils')
+
+
+def get_apps():
+    """
+    copied from django-extensions compatibility sheam
+    """
+    try:
+        # django >= 1.7, to support AppConfig
+        from django.apps import apps
+        return [app.models_module for app in apps.get_app_configs() if app.models_module]
+    except ImportError:
+        from django.db import models
+        return models.get_apps()
 
 
 def register_all_jobs(worker):
