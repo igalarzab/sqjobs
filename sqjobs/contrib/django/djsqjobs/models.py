@@ -20,7 +20,7 @@ class JobStatus(models.Model):
         (FAILURE, 'FAILURE')
     )
 
-    job_id = models.TextField(_('job id'), unique=True)
+    job_id = models.CharField(_('job id'), max_length=255, unique=True)
     job_name = models.CharField(_('job name'), max_length=255)
     status = models.CharField(_('status'), max_length=7, default=PENDING, choices=statuses)
     result = models.TextField(_('result'), blank=True)
