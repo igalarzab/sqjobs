@@ -39,7 +39,7 @@ def get_all_jobs():
 
     for app in get_apps():
         try:
-            module = importlib.import_module(app.__name__[:-6] + 'jobs')
+            module = app.__name__[:-6] + 'jobs'
             jobs.extend(get_jobs_from_module(module))
         except ImportError:
             pass
