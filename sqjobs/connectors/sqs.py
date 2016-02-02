@@ -115,7 +115,12 @@ class SQS(Connector):
         if not queue:
             raise QueueDoesNotExist('The queue %s does not exist' % queue_name)
 
-        self.connection.change_message_visibility(queue, message_id, delay)
+        queue.change_message_visibility_batch(Entries=[{
+            'Id': '1',
+            'ReceiptHandle': message_id,
+            'VisibilityTimeout': delay
+        }])
+
         logger.info('Changed retry time of a message from queue %s', queue_name)
 
     def serialize_job(self, job_class, job_id, args, kwargs):
