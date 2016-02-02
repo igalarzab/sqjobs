@@ -14,7 +14,7 @@ class TestBuilders(object):
 
         assert broker.connector.access_key == 'access'
         assert broker.connector.secret_key == 'secret'
-        assert broker.connector.region == 'us-west-1'
+        assert broker.connector.region_name == 'us-west-1'
 
     def test_worker_builder(self):
         worker = create_sqs_worker('queue_name', 'access', 'secret')
@@ -26,4 +26,4 @@ class TestBuilders(object):
         assert worker.queue_name == 'queue_name'
         assert worker.broker.connector.access_key == 'access'
         assert worker.broker.connector.secret_key == 'secret'
-        assert worker.broker.connector.region == 'us-west-1'
+        assert worker.broker.connector.region_name == 'us-west-1'
