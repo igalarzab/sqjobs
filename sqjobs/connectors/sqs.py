@@ -1,4 +1,5 @@
 from datetime import date, datetime
+import base64
 import json
 
 import boto3
@@ -16,28 +17,27 @@ class SQS(Connector):
     Manages a single connection to SQS
     """
 
-    def __init__(self, access_key, secret_key, region='us-east-1', use_ssl=True):
+    def __init__(self, access_key, secret_key, region_name='us-east-1', endpoint_url=None):
         """
         Creates a new SQS object
 
         :param access_key: access key with write access to AWS SQS
         :param secret_key: secret key with write access to AWS SQS
-        :param region: a region name, like 'us-east-1'
-        :param use_ssl: set to `True` when the connection is behind SSL
+        :param region_name: a region name, like 'us-east-1'
+        :param endpoint_url: URL to use a custom region
         """
         self.access_key = access_key
         self.secret_key = secret_key
-        self.region = region
-        self.use_ssl = use_ssl
+        self.region_name = region_name
+        self.endpoint_url = endpoint_url
 
         self._cached_connection = None
 
     def __repr__(self):
-        return 'SQS("{ak}", "{sk}", region="{region}", use_ssl={use_ssl})'.format(
+        return 'SQS("{ak}", "{sk}", region_name="{region_name}")'.format(
             ak=self.access_key,
             sk="%s******%s" % (self.secret_key[0:6], self.secret_key[-4:]),
-            region=self.region,
-            use_ssl=self.use_ssl,
+            region_name=self.region_name,
         )
 
     @property
@@ -46,14 +46,17 @@ class SQS(Connector):
         Creates (and saves in a cache) a connection to SQS
         """
         if self._cached_connection is None:
-            self._cached_connection = boto3.resource(
-                service_name='sqs',
-                region_name=self.region,
-                aws_access_key_id=self.access_key,
-                aws_secret_access_key=self.secret_key,
-                use_ssl=self.use_ssl,
-            )
+            config = {
+                'service_name': 'sqs',
+                'region_name': self.region_name,
+                'aws_access_key_id': self.access_key,
+                'aws_secret_access_key': self.secret_key,
+            }
 
+            if self.endpoint_url:
+                config['endpoint_url'] = self.endpoint_url
+
+            self._cached_connection = boto3.resource(**config)
             logger.debug('Created a new connection to SQS')
 
         return self._cached_connection
@@ -143,11 +146,13 @@ class SQS(Connector):
             return None
 
     def _encode_message(self, payload):
-        payload_str = json.dumps(payload, default=self._json_formatter)
+        payload_encoded = base64.b64encode(payload)
+        payload_str = json.dumps(payload_encoded, default=self._json_formatter)
         return payload_str
 
     def _decode_message(self, message):
-        payload = json.loads(message.body, default=self._json_formatter)
+        payload_decoded = base64.b64decode(message.body)
+        payload = json.loads(payload_decoded)
 
         retries = int(message.attributes['ApproximateReceiveCount'])
         created_on = int(message.attributes['SentTimestamp'])

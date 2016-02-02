@@ -24,8 +24,8 @@ class Command(BaseCommand):
             queue_name=queue_name,
             access_key=settings.SQJOBS_SQS_ACCESS_KEY,
             secret_key=settings.SQJOBS_SQS_SECRET_KEY,
-            region=settings.SQJOBS_SQS_REGION,
-            use_ssl=getattr(settings, 'SQJOBS_SQS_USE_SSL', True),
+            region_name=settings.SQJOBS_SQS_REGION_NAME,
+            endpoint_url=getattr(settings, 'SQJOBS_SQS_ENDPOINT_URL', None),
         )
 
         register_all_jobs(worker)

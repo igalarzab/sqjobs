@@ -15,19 +15,19 @@ def create_eager_broker():
     return Eager()
 
 
-def create_sqs_broker(access_key, secret_key, region='us-west-1', use_ssl=True):
+def create_sqs_broker(access_key, secret_key, region_name='us-west-1', endpoint_url=None):
     sqs = SQS(
         access_key=access_key,
         secret_key=secret_key,
-        region=region,
-        use_ssl=use_ssl,
+        region_name=region_name,
+        endpoint_url=endpoint_url,
     )
 
     return Standard(sqs)
 
 
-def create_sqs_worker(queue_name, access_key, secret_key, region='us-west-1', use_ssl=True):
-    broker = create_sqs_broker(access_key, secret_key, region, use_ssl)
+def create_sqs_worker(queue_name, access_key, secret_key, region_name='us-west-1', endpoint_url=None):
+    broker = create_sqs_broker(access_key, secret_key, region_name, endpoint_url)
     return Worker(broker, queue_name)
 
 
@@ -40,7 +40,7 @@ def get_jobs_from_module(module_name):
         return jobs
 
     for name, obj in inspect.getmembers(module):
-        if inspect.isclass(obj) and issubclass(obj, Job) and not obj.abstract:
+        if inspect.isclass(obj) and issubclass(obj, Job) and not obj.abstract and obj is not Job:
             logger.info('Found new job: %s', name)
             jobs.append(obj)
 
