@@ -29,7 +29,7 @@ class Command(BaseCommand):
         )
 
         register_all_jobs(worker)
-        worker.execute()
+        worker.run()
 
     def help_text(self):
         self.stdout.write('Use:')
