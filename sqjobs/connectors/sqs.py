@@ -118,7 +118,7 @@ class SQS(Connector):
         queue.change_message_visibility_batch(Entries=[{
             'Id': '1',
             'ReceiptHandle': message_id,
-            'VisibilityTimeout': delay
+            'VisibilityTimeout': delay or 0
         }])
 
         logger.info('Changed retry time of a message from queue %s', queue_name)
