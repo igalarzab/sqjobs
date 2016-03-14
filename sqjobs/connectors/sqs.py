@@ -118,7 +118,7 @@ class SQS(Connector):
         queue.change_message_visibility_batch(Entries=[{
             'Id': '1',
             'ReceiptHandle': message_id,
-            'VisibilityTimeout': delay
+            'VisibilityTimeout': delay or 0
         }])
 
         logger.info('Changed retry time of a message from queue %s', queue_name)
@@ -151,9 +151,9 @@ class SQS(Connector):
             return None
 
     def _encode_message(self, payload):
-        payload_encoded = base64.b64encode(payload)
-        payload_str = json.dumps(payload_encoded, default=self._json_formatter)
-        return payload_str
+        payload_str = json.dumps(payload, default=self._json_formatter)
+        payload_encoded = base64.b64encode(payload_str)
+        return payload_encoded
 
     def _decode_message(self, message):
         payload_decoded = base64.b64decode(message.body)
