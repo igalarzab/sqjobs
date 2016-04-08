@@ -152,8 +152,8 @@ class SQS(Connector):
 
     def _encode_message(self, payload):
         payload_str = json.dumps(payload, default=self._json_formatter)
-        payload_encoded = base64.b64encode(payload_str)
-        return payload_encoded
+        payload_encoded = base64.b64encode(payload_str.encode('utf-8'))
+        return payload_encoded.decode('utf-8')
 
     def _decode_message(self, message):
         payload_decoded = base64.b64decode(message.body)
