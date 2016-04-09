@@ -1,3 +1,4 @@
+import sys
 from datetime import date, datetime
 import base64
 import json
@@ -6,11 +7,14 @@ import boto3
 import botocore
 from pytz import timezone
 
+
 from .base import Connector
 from ..exceptions import QueueDoesNotExist
 
 import logging
 logger = logging.getLogger('sqjobs.sqs')
+
+is_pypy = '__pypy__' in sys.builtin_module_names
 
 
 class SQS(Connector):
@@ -163,7 +167,11 @@ class SQSMessage(object):
 
     @staticmethod
     def decode(message):
-        payload_decoded = base64.b64decode(message.body)
+        body = message.body
+        if is_pypy:
+            body = body.encode("utf-8")
+
+        payload_decoded = base64.b64decode(body)
         payload = json.loads(payload_decoded.decode("utf-8"))
 
         retries = int(message.attributes['ApproximateReceiveCount'])
