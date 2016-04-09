@@ -61,7 +61,13 @@ class SQSQueueMock(object):
 
     def receive_messages(self, MaxNumberOfMessages, WaitTimeSeconds,
                          AttributeNames):
-        return [SQSMessageMock()]
+        pass
+
+    def delete_messages(self):
+        pass
+
+    def change_message_visibility_batch(self):
+        pass
 
 
 class SQSMessageMock(object):
@@ -140,6 +146,34 @@ class TestSQSConnector(object):
         )
 
         assert serializer == expected_serializer
+
+    def test_unserialize_job_returns_job_class(self):
+        sqs_connector = self.create_sqs_connector()
+
+        payload = {
+            'id': 1,
+            '_metadata': {
+                'created_on': datetime(2016, 4, 9, 7, 16, 44,
+                                       tzinfo=timezone('UTC')),
+                'id': '1',
+                'retries': 0
+            },
+            'args': [1, 'second_arg'],
+            'kwargs': {
+                'first_kwarg': 1,
+                'second_kwarg': '2'
+            }
+        }
+
+        job, args, kwargs = sqs_connector.unserialize_job(
+            job_class=Adder,
+            queue_name=QUEUE_NAME,
+            payload=payload
+        )
+
+        assert isinstance(job, Adder) is True
+        assert args == [1, 'second_arg']
+        assert kwargs == {'first_kwarg': 1, 'second_kwarg': '2'}
 
     @mock.patch.object(boto3, 'resource')
     def test_connection_enqueue_message_goes_ok(self, sqs_mock):
@@ -230,3 +264,71 @@ class TestSQSConnector(object):
             payload = sqs_connector.dequeue(QUEUE_NAME, wait_time=0)
 
             assert payload is None
+
+    @mock.patch.object(boto3, 'resource')
+    def test_connection_delete_message_goes_ok(self, sqs_mock):
+        sqs_mock.return_value = SQSMock()
+        sqs_connector = self.create_sqs_connector()
+
+        with mock.patch.object(SQSQueueMock,
+                               'delete_messages') as delete_messages_mock:
+
+            sqs_connector.delete(QUEUE_NAME, message_id=1)
+
+            delete_messages_mock.assert_called_with(
+                Entries=[
+                    {
+                        'Id': '1',
+                        'ReceiptHandle': 1
+                    }
+                ]
+            )
+
+    @mock.patch.object(boto3, 'resource')
+    def test_connection_delete_message_fails_if_no_queue_found(self, sqs_mock):
+        sqs_mock.return_value = SQSMock(raise_queue_not_found=True)
+        sqs_connector = self.create_sqs_connector()
+
+        pytest.raises(QueueDoesNotExist, sqs_connector.delete,
+                      queue_name=QUEUE_NAME, message_id=1)
+
+    @mock.patch.object(boto3, 'resource')
+    def test_connection_retry_message_goes_ok(self, sqs_mock):
+        sqs_mock.return_value = SQSMock()
+        sqs_connector = self.create_sqs_connector()
+
+        with mock.patch.object(
+                SQSQueueMock,
+                'change_message_visibility_batch') as change_mock:
+
+            sqs_connector.retry(QUEUE_NAME, message_id=5, delay=1)
+
+            change_mock.assert_called_with(
+                Entries=[
+                    {
+                        'Id': '1',
+                        'ReceiptHandle': 5,
+                        'VisibilityTimeout': 1
+                    }
+                ]
+            )
+
+            sqs_connector.retry(QUEUE_NAME, message_id=5, delay=None)
+
+            change_mock.assert_called_with(
+                Entries=[
+                    {
+                        'Id': '1',
+                        'ReceiptHandle': 5,
+                        'VisibilityTimeout': 0
+                    }
+                ]
+            )
+
+    @mock.patch.object(boto3, 'resource')
+    def test_connection_retry_message_fails_if_no_queue_found(self, sqs_mock):
+        sqs_mock.return_value = SQSMock(raise_queue_not_found=True)
+        sqs_connector = self.create_sqs_connector()
+
+        pytest.raises(QueueDoesNotExist, sqs_connector.retry,
+                      queue_name=QUEUE_NAME, message_id=1, delay=1)
