@@ -4,6 +4,7 @@ import json
 
 import boto3
 import botocore
+from pytz import timezone
 
 from .base import Connector
 from ..exceptions import QueueDoesNotExist
@@ -171,7 +172,8 @@ class SQSMessage(object):
         payload['_metadata'] = {
             'id': message.receipt_handle,
             'retries': retries,
-            'created_on': datetime.fromtimestamp(created_on / 1000),
+            'created_on': datetime.fromtimestamp(created_on / 1000,
+                                                 tz=timezone('UTC')),
         }
 
         logging.debug('Message payload: %s', str(payload))

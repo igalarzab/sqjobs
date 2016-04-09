@@ -1,6 +1,7 @@
 import boto3
 import botocore
-import datetime
+from datetime import datetime
+from pytz import timezone
 import pytest
 import mock
 
@@ -167,7 +168,8 @@ class TestSQSConnector(object):
 
         expected_payload = {
             '_metadata': {
-                'created_on': datetime.datetime(2016, 4, 9, 9, 16, 44),
+                'created_on': datetime(2016, 4, 9, 7, 16, 44,
+                                       tzinfo=timezone('UTC')),
                 'id': '1',
                 'retries': 0
             },
