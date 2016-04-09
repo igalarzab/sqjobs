@@ -62,7 +62,7 @@ class SQS(Connector):
         return self._cached_connection
 
     def enqueue(self, queue_name, payload):
-        message = self._encode_message(payload)
+        message = SQSMessage.encode(payload)
         queue = self._get_queue(queue_name)
 
         if not queue:
@@ -92,7 +92,7 @@ class SQS(Connector):
                     return None  # Non-blocking mode
 
         logger.info('New message retrieved from %s', queue_name)
-        payload = self._decode_message(messages[0])
+        payload = SQSMessage.decode(messages[0])
 
         return payload
 
@@ -150,14 +150,20 @@ class SQS(Connector):
         except botocore.exceptions.ClientError:
             return None
 
-    def _encode_message(self, payload):
-        payload_str = json.dumps(payload, default=self._json_formatter)
+
+class SQSMessage(object):
+
+    @staticmethod
+    def encode(payload):
+        payload_str = json.dumps(payload,
+                                 default=SQSMessage.json_formatter)
         payload_encoded = base64.b64encode(payload_str.encode('utf-8'))
         return payload_encoded.decode('utf-8')
 
-    def _decode_message(self, message):
+    @staticmethod
+    def decode(message):
         payload_decoded = base64.b64decode(message.body)
-        payload = json.loads(payload_decoded)
+        payload = json.loads(payload_decoded.decode("utf-8"))
 
         retries = int(message.attributes['ApproximateReceiveCount'])
         created_on = int(message.attributes['SentTimestamp'])
@@ -172,7 +178,8 @@ class SQS(Connector):
 
         return payload
 
-    def _json_formatter(obj):
+    @staticmethod
+    def json_formatter(obj):
         if isinstance(obj, datetime):
             return obj.strftime('%Y-%m-%d %H:%M:%S')
         elif isinstance(obj, date):

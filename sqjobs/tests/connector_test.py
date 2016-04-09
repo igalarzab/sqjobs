@@ -1,14 +1,16 @@
 import boto3
 import botocore
+import datetime
 import pytest
 import mock
 
 from sqjobs.exceptions import QueueDoesNotExist
-from ..connectors.sqs import SQS
+from ..connectors.sqs import SQS, SQSMessage
 from ..connectors.base import Connector
 from ..connectors.dummy import Dummy
 from .fixtures import Adder
 
+QUEUE_NAME = 'my_queue'
 SQS_SERVICE_NAME = 'sqs'
 SQS_REGION_NAME = 'us-east-1'
 SQS_ACCESS_KEY = 'ACCESS_KEY'
@@ -49,12 +51,27 @@ class SQSMock(object):
             error_response = {'Error': {}}
             raise botocore.exceptions.ClientError(error_response=error_response,
                                                   operation_name=None)
-        return SQSQueue()
+        return SQSQueueMock()
 
 
-class SQSQueue(object):
+class SQSQueueMock(object):
     def send_message(self, MessageBody):
         pass
+
+    def receive_messages(self, MaxNumberOfMessages, WaitTimeSeconds,
+                         AttributeNames):
+        return [SQSMessageMock()]
+
+
+class SQSMessageMock(object):
+
+    def __init__(self, receipt_handle="1"):
+        self.body = SQSMessage.encode({'key': 'value'})
+        self.receipt_handle = receipt_handle
+        self.attributes = {
+            "ApproximateReceiveCount": 0,
+            "SentTimestamp": 1460186204000
+        }
 
 
 class TestSQSConnector(object):
@@ -79,7 +96,6 @@ class TestSQSConnector(object):
 
         assert sqs_connector._cached_connection is not None
 
-
     @mock.patch.object(boto3, 'resource')
     def test_connection_created_with_aws_parameters(self, sqs_mock):
         sqs_mock.return_value = SQSMock()
@@ -91,7 +107,6 @@ class TestSQSConnector(object):
                                     aws_secret_access_key=SQS_SECRET_KEY,
                                     region_name=SQS_REGION_NAME,
                                     service_name=SQS_SERVICE_NAME)
-
 
     @mock.patch.object(boto3, 'resource')
     def test_connection_created_with_endpoint_url_if_provided(self, sqs_mock):
@@ -109,7 +124,7 @@ class TestSQSConnector(object):
     def test_serialize_job_returns_valid_json(self):
         sqs_connector = self.create_sqs_connector()
 
-        serializer_expected = {
+        expected_serializer = {
             'args': [3, 4],
             'id': 15,
             'kwargs': {'first_param': 1, 'second_param': 'two'},
@@ -123,15 +138,15 @@ class TestSQSConnector(object):
             kwargs={'first_param': 1, 'second_param': 'two'}
         )
 
-        assert serializer == serializer_expected
+        assert serializer == expected_serializer
 
     @mock.patch.object(boto3, 'resource')
     def test_connection_enqueue_message_goes_ok(self, sqs_mock):
         sqs_mock.return_value = SQSMock()
         sqs_connector = self.create_sqs_connector()
 
-        with mock.patch.object(SQSQueue, 'send_message') as send_message_mock:
-            sqs_connector.enqueue(queue_name='my_queue',
+        with mock.patch.object(SQSQueueMock, 'send_message') as send_message_mock:
+            sqs_connector.enqueue(queue_name=('%s' % QUEUE_NAME),
                                   payload="{'key': value}")
             send_message_mock.assert_called_with(
                 MessageBody="Insna2V5JzogdmFsdWV9Ig=="
@@ -143,4 +158,73 @@ class TestSQSConnector(object):
         sqs_connector = self.create_sqs_connector()
 
         pytest.raises(QueueDoesNotExist, sqs_connector.enqueue,
-                      queue_name='my_queue', payload="{}")
+                      queue_name=QUEUE_NAME, payload="{}")
+
+    @mock.patch.object(boto3, 'resource')
+    def test_connection_dequeue_message_goes_ok(self, sqs_mock):
+        sqs_mock.return_value = SQSMock()
+        sqs_connector = self.create_sqs_connector()
+
+        expected_payload = {
+            '_metadata': {
+                'created_on': datetime.datetime(2016, 4, 9, 9, 16, 44),
+                'id': '1',
+                'retries': 0
+            },
+            'key': 'value'
+        }
+
+        with mock.patch.object(SQSQueueMock,
+                               'receive_messages') as receive_messages_mock:
+            receive_messages_mock.return_value = [
+                SQSMessageMock(receipt_handle="1"),
+                SQSMessageMock(receipt_handle="2")
+            ]
+
+            payload = sqs_connector.dequeue(QUEUE_NAME)
+
+            receive_messages_mock.assert_called_with(
+                AttributeNames=['All'],
+                MaxNumberOfMessages=1,
+                WaitTimeSeconds=20
+            )
+
+        assert payload == expected_payload
+
+    @mock.patch.object(boto3, 'resource')
+    def test_connection_dequeue_message_fails_if_no_queue_found(self, sqs_mock):
+        sqs_mock.return_value = SQSMock(raise_queue_not_found=True)
+        sqs_connector = self.create_sqs_connector()
+
+        pytest.raises(QueueDoesNotExist, sqs_connector.dequeue,
+                      queue_name=QUEUE_NAME)
+
+    @mock.patch.object(boto3, 'resource')
+    def test_connection_dequeue_message_with_wait_time(self, sqs_mock):
+        sqs_mock.return_value = SQSMock()
+        sqs_connector = self.create_sqs_connector()
+
+        with mock.patch.object(SQSQueueMock,
+                               'receive_messages') as receive_messages_mock:
+            receive_messages_mock.return_value = [SQSMessageMock()]
+
+            sqs_connector.dequeue(QUEUE_NAME, wait_time=10)
+
+            receive_messages_mock.assert_called_with(
+                AttributeNames=['All'],
+                MaxNumberOfMessages=1,
+                WaitTimeSeconds=10
+            )
+
+    @mock.patch.object(boto3, 'resource')
+    def test_connection_dequeue_message_non_blocking_mode(self, sqs_mock):
+        sqs_mock.return_value = SQSMock()
+        sqs_connector = self.create_sqs_connector()
+
+        with mock.patch.object(SQSQueueMock,
+                               'receive_messages') as receive_messages_mock:
+            receive_messages_mock.return_value = []
+
+            payload = sqs_connector.dequeue(QUEUE_NAME, wait_time=0)
+
+            assert payload is None
