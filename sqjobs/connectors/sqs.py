@@ -1,12 +1,11 @@
-import sys
-from datetime import date, datetime
 import base64
 import json
+import sys
+from datetime import date, datetime
+from pytz import timezone
 
 import boto3
 import botocore
-from pytz import timezone
-
 
 from .base import Connector
 from ..exceptions import QueueDoesNotExist
@@ -160,14 +159,14 @@ class SQSMessage(object):
 
     @staticmethod
     def encode(payload):
-        payload_str = json.dumps(payload,
-                                 default=SQSMessage.json_formatter)
+        payload_str = json.dumps(payload, default=SQSMessage.json_formatter)
         payload_encoded = base64.b64encode(payload_str.encode('utf-8'))
         return payload_encoded.decode('utf-8')
 
     @staticmethod
     def decode(message):
         body = message.body
+
         if is_pypy:
             body = body.encode("utf-8")
 
@@ -180,8 +179,7 @@ class SQSMessage(object):
         payload['_metadata'] = {
             'id': message.receipt_handle,
             'retries': retries,
-            'created_on': datetime.fromtimestamp(created_on / 1000,
-                                                 tz=timezone('UTC')),
+            'created_on': datetime.fromtimestamp(created_on / 1000, tz=timezone('UTC')),
         }
 
         logging.debug('Message payload: %s', str(payload))
