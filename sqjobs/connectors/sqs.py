@@ -1,15 +1,20 @@
+import sys
 from datetime import date, datetime
 import base64
 import json
 
 import boto3
 import botocore
+from pytz import timezone
+
 
 from .base import Connector
 from ..exceptions import QueueDoesNotExist
 
 import logging
 logger = logging.getLogger('sqjobs.sqs')
+
+is_pypy = '__pypy__' in sys.builtin_module_names
 
 
 class SQS(Connector):
@@ -62,7 +67,7 @@ class SQS(Connector):
         return self._cached_connection
 
     def enqueue(self, queue_name, payload):
-        message = self._encode_message(payload)
+        message = SQSMessage.encode(payload)
         queue = self._get_queue(queue_name)
 
         if not queue:
@@ -92,7 +97,7 @@ class SQS(Connector):
                     return None  # Non-blocking mode
 
         logger.info('New message retrieved from %s', queue_name)
-        payload = self._decode_message(messages[0])
+        payload = SQSMessage.decode(messages[0])
 
         return payload
 
@@ -150,14 +155,24 @@ class SQS(Connector):
         except botocore.exceptions.ClientError:
             return None
 
-    def _encode_message(self, payload):
-        payload_str = json.dumps(payload, default=self._json_formatter)
-        payload_encoded = base64.b64encode(payload_str)
-        return payload_encoded
 
-    def _decode_message(self, message):
-        payload_decoded = base64.b64decode(message.body)
-        payload = json.loads(payload_decoded)
+class SQSMessage(object):
+
+    @staticmethod
+    def encode(payload):
+        payload_str = json.dumps(payload,
+                                 default=SQSMessage.json_formatter)
+        payload_encoded = base64.b64encode(payload_str.encode('utf-8'))
+        return payload_encoded.decode('utf-8')
+
+    @staticmethod
+    def decode(message):
+        body = message.body
+        if is_pypy:
+            body = body.encode("utf-8")
+
+        payload_decoded = base64.b64decode(body)
+        payload = json.loads(payload_decoded.decode("utf-8"))
 
         retries = int(message.attributes['ApproximateReceiveCount'])
         created_on = int(message.attributes['SentTimestamp'])
@@ -165,14 +180,16 @@ class SQS(Connector):
         payload['_metadata'] = {
             'id': message.receipt_handle,
             'retries': retries,
-            'created_on': datetime.fromtimestamp(created_on / 1000),
+            'created_on': datetime.fromtimestamp(created_on / 1000,
+                                                 tz=timezone('UTC')),
         }
 
         logging.debug('Message payload: %s', str(payload))
 
         return payload
 
-    def _json_formatter(obj):
+    @staticmethod
+    def json_formatter(obj):
         if isinstance(obj, datetime):
             return obj.strftime('%Y-%m-%d %H:%M:%S')
         elif isinstance(obj, date):
