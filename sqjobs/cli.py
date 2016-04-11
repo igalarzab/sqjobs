@@ -14,8 +14,7 @@ Options:
 AWS SQS Options:
   --aws-access-key=<ak>         Access key to access SQS
   --aws-secret-key=<sk>         Secret key to access SQS
-  --aws-region=<region>         AWS Region [default: us-west-1]
-  --aws-use-ssl=<use_ssl>       If the connections runs behind SSL [default: 1]
+  --aws-region-name=<region>    AWS Region [default: us-west-1]
 
 Utils:
   --sentry-dsn=<sentry_dsn>     Sentry DSN to report exceptions (raven must be installed)
@@ -41,8 +40,7 @@ def get_worker_config(broker, arguments):
     config = {
         'access_key': arguments['--aws-access-key'],
         'secret_key': arguments['--aws-secret-key'],
-        'region': arguments['--aws-region'],
-        'use_ssl': int(arguments['--aws-use-ssl']),
+        'region_name': arguments['--aws-region-name'],
     }
 
     if not config['access_key'] or not config['secret_key']:
