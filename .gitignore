@@ -11,3 +11,6 @@
 .cache
 .coverage
 htmlcov/
+
+# sphinx
+docs/_build
