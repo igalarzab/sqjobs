@@ -51,14 +51,17 @@ class Worker(object):
         try:
             job.execute(*args, **kwargs)
             self.broker.delete_job(job)
-            job.on_success()
         except RetryException:
             job.on_retry()
             self.broker.retry(job)
+            return
         except:
             job.on_failure()
             self._handle_exception(job, args, kwargs, *sys.exc_info())
             self.broker.retry(job)
+            return
+
+        job.on_success()
 
     def _handle_exception(self, job, args, kwargs, *exc_info):
         exception_message = ''.join(
