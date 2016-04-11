@@ -36,4 +36,4 @@ broker.add_job(AdderJob, 1, 2, queue_name='other_queue_name')
 
 ## Documentation
 
-Check out `sqjobs's documentation <https://sqjobs.readthedocs.org>`_ for further information.
+Check out [sqjobs's documentation](https://sqjobs.readthedocs.org>) for further information.
