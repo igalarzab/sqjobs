@@ -14,6 +14,7 @@
 
 import sys
 import os
+from datetime import datetime
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -47,7 +48,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'sqjobs'
-copyright = '2016, Jose Ignacio Galarza'
+years = ", ".join(map(str, range(2015, datetime.now().year + 1)))
+copyright = '%s, Jose Ignacio Galarza' % years
 author = metadata.__author__
 
 # The version info for the project you're documenting, acts as replacement for
@@ -172,7 +174,7 @@ html_use_smartypants = True
 #html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-html_show_sourcelink = True
+html_show_sourcelink = False
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 html_show_sphinx = True

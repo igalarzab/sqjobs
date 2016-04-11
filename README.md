@@ -8,7 +8,7 @@
 
 Simply use pip to install the last version of ``sqjobs``
 
-    pip install sqjobs
+    pip install --upgrade sqjobs
 
 
 ## Getting started
@@ -33,3 +33,7 @@ from sqjobs import create_sqs_broker
 broker = create_sqs_broker(access_key='ak', secret_key='sk')
 broker.add_job(AdderJob, 1, 2, queue_name='other_queue_name')
 ```
+
+## Documentation
+
+Check out `sqjobs's documentation <https://sqjobs.readthedocs.org>`_ for further information.
