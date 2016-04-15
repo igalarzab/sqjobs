@@ -16,6 +16,9 @@ setup(
     include_package_data=True,
     zip_safe=False,
     platforms='any',
+    entry_points={
+        'console_scripts': ['sqjobs = sqjobs.cli:main']
+    },
     install_requires=[req.strip() for req in open('requirements/base.txt').readlines()],
     classifiers=[
         'Development Status :: 4 - Beta',

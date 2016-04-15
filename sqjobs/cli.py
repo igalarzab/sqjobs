@@ -49,7 +49,18 @@ def get_worker_config(broker, arguments):
     return config
 
 
-def main(arguments):
+def config_logger(arguments):
+    logging.basicConfig(
+        format='[%(asctime)s][%(name)s] %(message)s',
+        level='INFO',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+
+def main():
+    arguments = docopt(__doc__, version=__version__)
+    config_logger(arguments)
+
     queue_name = arguments['<queue_name>']
     worker_config = get_worker_config(arguments['<broker>'], arguments)
 
@@ -69,11 +80,5 @@ def main(arguments):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(
-        format='[%(asctime)s][%(name)s] %(message)s',
-        level='INFO',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+    main()
 
-    args = docopt(__doc__, version=__version__)
-    main(args)
