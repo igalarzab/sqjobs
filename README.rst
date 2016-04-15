@@ -45,7 +45,7 @@ Documentation
 
 Check out `sqjobs’s documentation`_ for further information.
 
-.. _sqjobs’s documentation: https://sqjobs.readthedocs.org%3E
+.. _sqjobs’s documentation: https://sqjobs.readthedocs.org
 
 .. |Build Status| image:: https://travis-ci.org/igalarzab/sqjobs.svg?branch=master
    :target: https://secure.travis-ci.org/igalarzab/sqjobs
