@@ -12,6 +12,7 @@ setup(
     author=metadata.__author__,
     author_email=metadata.__email__,
     description=metadata.__long_name__,
+    long_description=open('README.md').read(),
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
     zip_safe=False,
