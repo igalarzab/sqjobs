@@ -43,9 +43,16 @@ class Worker(object):
                     continue
 
                 job, args, kwargs = self.broker.unserialize_job(job_class, self.queue_name, payload)
+                self._set_retry_time(job)
                 self._execute_job(job, args, kwargs)
             except:
                 logger.exception('Error executing job')
+
+    def _set_retry_time(self, job):
+        if job.next_retry_time() is None:  # Use default value of the queue
+            return
+
+        self.broker.set_retry_time(job, job.next_retry_time())
 
     def _execute_job(self, job, args, kwargs):
         try:
