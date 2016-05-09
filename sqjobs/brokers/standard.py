@@ -31,7 +31,7 @@ class Standard(Broker):
         self.connector.delete(job.queue_name, job.broker_id)
 
     def retry(self, job):
-        self.connector.retry(job.queue_name, job.broker_id, job.next_retry_time())
+        self.connector.set_retry_time(job.queue_name, job.broker_id, job.next_retry_time())
 
     def jobs(self, queue_name, timeout=20):
         while True:

@@ -113,7 +113,7 @@ class SQS(Connector):
 
         logger.info('Deleted message from queue %s', queue_name)
 
-    def retry(self, queue_name, message_id, delay):
+    def set_retry_time(self, queue_name, message_id, delay):
         queue = self._get_queue(queue_name)
 
         if not queue:

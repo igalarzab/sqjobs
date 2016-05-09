@@ -34,7 +34,7 @@ class TestConnectorInterface(object):
             Connector.delete(dummy, 'demo', 'id')
 
         with pytest.raises(NotImplementedError):
-            Connector.retry(dummy, 'demo', 'id', 10)
+            Connector.set_retry_time(dummy, 'demo', 'id', 10)
 
         with pytest.raises(NotImplementedError):
             Connector.serialize_job(dummy, dummy, 'job_id', 'args', {})
@@ -299,7 +299,7 @@ class TestSQSConnector(object):
 
         with mock.patch.object(SQSQueueMock, 'change_message_visibility_batch') as change_mock:
 
-            sqs_connector.retry(QUEUE_NAME, message_id=5, delay=1)
+            sqs_connector.set_retry_time(QUEUE_NAME, message_id=5, delay=1)
 
             change_mock.assert_called_with(
                 Entries=[
@@ -311,7 +311,7 @@ class TestSQSConnector(object):
                 ]
             )
 
-            sqs_connector.retry(QUEUE_NAME, message_id=5, delay=None)
+            sqs_connector.set_retry_time(QUEUE_NAME, message_id=5, delay=None)
 
             change_mock.assert_called_with(
                 Entries=[
@@ -330,7 +330,7 @@ class TestSQSConnector(object):
 
         pytest.raises(
             QueueDoesNotExist,
-            sqs_connector.retry,
+            sqs_connector.set_retry_time,
             queue_name=QUEUE_NAME,
             message_id=1,
             delay=1
