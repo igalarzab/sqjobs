@@ -3,6 +3,11 @@
 Changelog
 =========
 
+v0.6.6
+------
+
+* Fix how job names are calculated when a custom one is not specified.
+
 v0.6.5
 ------
 
