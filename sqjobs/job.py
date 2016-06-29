@@ -74,12 +74,7 @@ class Job(object):
 
     @classmethod
     def _task_name(cls):
-        name = cls.name
-
-        if not name:
-            name = '{0}|{1}'.format(cls.__module__, cls.__name__)
-
-        return name
+        return cls.name or cls.__name__
 
 
 class JobResult(object):

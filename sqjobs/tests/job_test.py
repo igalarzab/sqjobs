@@ -16,7 +16,7 @@ class TestJobDefaults(object):
         assert Job.name is None
 
     def test_default_name_generator(self):
-        assert Job._task_name() == 'sqjobs.job|Job'
+        assert Job._task_name() == 'Job'
 
     def test_is_abstract_class(self):
         with pytest.raises(TypeError):
