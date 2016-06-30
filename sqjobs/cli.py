@@ -25,6 +25,8 @@ Other options:
 """
 
 import logging
+import os
+import sys
 
 from docopt import docopt
 
@@ -32,6 +34,8 @@ from .contrib.sentry import create_raven_client, register_sentry
 from .metadata import __version__
 from .utils import create_sqs_worker, get_jobs_from_module
 
+import logging
+logger = logging.getLogger('sqjobs.cli')
 
 def get_worker_config(broker, arguments):
     if broker != 'sqs':
@@ -69,8 +73,13 @@ def main():
         **worker_config
     )
 
+    # Add the CWD to the python path
+    sys.path.append(os.getcwd())
+
     for job in get_jobs_from_module(arguments['--jobs']):
         worker.register_job(job)
+
+    logger.info('%d jobs registered', len(worker.registered_jobs))
 
     if arguments['--sentry-dsn']:
         raven_client = create_raven_client(arguments['--sentry-dsn'])
