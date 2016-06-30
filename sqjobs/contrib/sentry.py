@@ -8,12 +8,13 @@ def register_sentry(raven_client, worker):
     Register sentry to send worker exceptions to it
     """
 
-    def send_exception_to_sentry(job, *exc_info):
+    def send_exception_to_sentry(job, args, kwargs, *exc_info):
         raven_client.captureException(exc_info=exc_info, extra={
-	    'job_id': job.id,
+            'job_id': job.id,
             'job_name': job.name,
-            'retries': job.retries,
-	})
+            'job_args': args,
+            'job_kwargs': kwargs,
+            'job_retries': job.retries,
+    	})
 
-    # TODO: Not yet...
-    #  worker.add_exception_handler(send_exception_to_sentry)
+    worker.append_exception_handler(send_exception_to_sentry)

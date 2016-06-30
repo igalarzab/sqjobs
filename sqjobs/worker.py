@@ -15,6 +15,7 @@ class Worker(object):
         self.queue_name = queue_name
         self.timeout = timeout or self.DEFAULT_TIMEOUT
         self.registered_jobs = {}
+        self.exception_handlers = []
 
     def __repr__(self):
         return 'Worker({connector})'.format(
@@ -32,6 +33,9 @@ class Worker(object):
             logger.warning('Job %s already registered, overwriting it...', name)
 
         self.registered_jobs[name] = job_class
+
+    def append_exception_handler(self, handler):
+        self.exception_handlers.append(handler)
 
     def run(self):
         for payload in self.broker.jobs(self.queue_name, self.timeout):
@@ -83,3 +87,7 @@ class Worker(object):
             'job_args': args,
             'job_kwargs': kwargs,
         })
+
+        for handler in reversed(self.exception_handlers):
+            logger.debug('Executing exception handler %s', handler)
+            handler(job, args, kwargs, *exc_info)
