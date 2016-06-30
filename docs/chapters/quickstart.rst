@@ -16,13 +16,18 @@ where the job code must reside::
     from sqjobs import Job
 
     class Adder(Job):
+        name = 'my_custom_adder'
         default_queue_name = 'math_operations'
 
         def run(self, num1, num2):
             return num1 + num2
 
-There is an attribute called ``default_queue_name`` that defines where the job will be enqueued if
-another queue is not given. The default value of the attribute (if not set) is ``sqjobs``.
+One of the most important attributes of a job is it ``name``. The job's name must be unique and it's
+used by the workers to know which job must be executed when returning a new message from the broker.
+The default value if it's not specified is the class name, ``Adder`` in the previous example.
+
+There is also an attribute called ``default_queue_name`` that defines where the job will be enqueued
+if another queue is not given. The default value of the attribute (if not set) is ``sqjobs``.
 
 The arguments of the ``run()`` method are arbitrary, and depend on the arguments of the operation
 you are creating. It must be compatible with the arguments that are used to enqueue the job.
@@ -232,6 +237,7 @@ Example using all the info previously discussed::
 
 
     class Downloader(LoggedJob):
+        name = 'downloader'
         default_queue_name = 'downloader'
 
         def run(self, url):
