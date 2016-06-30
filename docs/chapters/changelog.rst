@@ -3,6 +3,11 @@
 Changelog
 =========
 
+v0.6.7
+------
+
+* Adding the current working directory to the python path when using the CLI.
+
 v0.6.6
 ------
 
