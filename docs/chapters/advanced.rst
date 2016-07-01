@@ -20,9 +20,7 @@ Then, you'll have to configure your connection to SQS with the following setting
     SQJOBS_SQS_SECRET_KEY = '????'
     SQJOBS_SQS_REGION_NAME = 'eu-west-1'
 
-From now on your manage.py script will have a new command to execute the SQJobs worker. By default,
-it will load all the jobs contained in all the ``jobs.py`` modules of the applications contained
-in your ``INSTALLED_APPS`` setting::
+From now on your manage.py script will have a new command to execute the SQJobs worker::
 
     $ ./manage.py worker QUEUE_NAME
 
