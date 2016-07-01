@@ -41,7 +41,6 @@ def get_jobs_from_module(module_name):
 
     for name, obj in inspect.getmembers(module):
         if inspect.isclass(obj) and issubclass(obj, Job) and not obj.abstract and obj is not Job:
-            logger.info('Found new job: %s', name)
             jobs.append(obj)
 
     return jobs

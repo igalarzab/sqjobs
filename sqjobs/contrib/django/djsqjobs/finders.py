@@ -4,17 +4,17 @@ import logging
 logger = logging.getLogger('sqjobs.contrib.django.utils')
 
 
-def get_apps():
+def get_apps_names():
     """
     copied from django-extensions compatibility sheam
     """
     try:
         # django >= 1.7, to support AppConfig
         from django.apps import apps
-        return [app.models_module for app in apps.get_app_configs() if app.models_module]
+        return [app.name for app in apps.get_app_configs()]
     except ImportError:
         from django.db import models
-        return models.get_apps()
+        return [app.__name__[:-6] for app in models.get_apps()]
 
 
 def register_all_jobs(worker):
@@ -35,9 +35,9 @@ def get_all_jobs():
     """
     jobs = []
 
-    for app in get_apps():
+    for app_name in get_apps_names():
         try:
-            module = app.__name__[:-6] + 'jobs'
+            module = app_name + '.jobs'
             jobs.extend(get_jobs_from_module(module))
         except ImportError:
             pass

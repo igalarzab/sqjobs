@@ -1,11 +1,9 @@
 from __future__ import absolute_import
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from sqjobs import create_sqs_worker
-from sqjobs.contrib.django.djsqjobs import get_worker
 from sqjobs.contrib.django.djsqjobs.finders import register_all_jobs
+from sqjobs.contrib.django.djsqjobs.utils import get_worker
 
 
 class Command(BaseCommand):

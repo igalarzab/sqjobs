@@ -26,11 +26,13 @@ class Worker(object):
         name = job_class._task_name()
 
         if job_class.abstract:
-            logger.info('Job %s is abstract', name)
+            logger.info('Job %s is abstract, ignoring it...', name)
             return
 
         if name in self.registered_jobs:
             logger.warning('Job %s already registered, overwriting it...', name)
+
+        logger.info('Registering new job: %s', name)
 
         self.registered_jobs[name] = job_class
 
@@ -38,6 +40,8 @@ class Worker(object):
         self.exception_handlers.append(handler)
 
     def run(self):
+        logger.info('Running worker, %d jobs registered...', len(self.registered_jobs))
+
         for payload in self.broker.jobs(self.queue_name, self.timeout):
             try:
                 job_class = self.registered_jobs.get(payload['name'])

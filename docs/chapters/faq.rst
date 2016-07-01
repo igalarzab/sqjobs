@@ -48,7 +48,7 @@ is an example of the ``settings.py`` to export DEBUG information to the standard
 your shell)::
 
     LOGGING = {
-        ...
+        'version': 1,
         'handlers': {
             'console': {
                 'level': 'DEBUG',
