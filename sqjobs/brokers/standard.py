@@ -17,7 +17,7 @@ class Standard(Broker):
 
     def add_job(self, job_class, *args, **kwargs):
         job_id = self.gen_job_id()
-        queue_name = kwargs.get('queue_name', job_class.default_queue_name)
+        queue_name = kwargs.pop('queue_name', job_class.default_queue_name)
 
         payload = self.serialize_job(job_class, job_id, args, kwargs)
         self.connector.enqueue(queue_name, payload)

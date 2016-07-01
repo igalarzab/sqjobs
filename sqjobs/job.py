@@ -52,10 +52,10 @@ class Job(object):
 
     def execute(self, *args, **kwargs):
         self.pre_run(*args, **kwargs)
-        res = self.result = self.run(*args, **kwargs)
+        self.result = self.run(*args, **kwargs)
         self.post_run(*args, **kwargs)
 
-        return res
+        return self.result
 
     def on_success(self):
         pass
