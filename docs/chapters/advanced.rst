@@ -24,8 +24,8 @@ From now on your manage.py script will have a new command to execute the SQJobs 
 
     $ ./manage.py worker QUEUE_NAME
 
-By default, it will search for all the ``jobs.py`` modules in your ``INSTALLED_APPS`` settings and it
-will load all the jobs contained in them.
+By default, it will search for all the ``jobs`` modules (ex: a ``jobs.py`` file near your
+``models.py``) in your ``INSTALLED_APPS`` settings and it will load all the jobs contained in them.
 
 Also, you can send new jobs to SQS using the ``add_job`` method::
 
