@@ -3,6 +3,14 @@
 Changelog
 =========
 
+v0.7.0
+------
+
+* Added :ref:`new helpers <advanced>` to use SQJobs with Django.
+* Fixed a bug that forces the inmediate retry of a job when it fails.
+* Fixed an exception when running a job with a overwrited default queue name.
+* Improved the documentation.
+
 v0.6.7
 ------
 
