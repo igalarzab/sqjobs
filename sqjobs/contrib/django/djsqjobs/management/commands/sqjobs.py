@@ -11,12 +11,11 @@ class Command(BaseCommand):
     args = True
 
     def handle(self, *args, **options):
-        if args[0] == 'worker':
-            if len(args) != 2:
-                self.help_text()
-                return
+        if len(args) != 3 or args[0] != 'sqs' or args[1] != 'worker':
+            self.help_text()
+            return
 
-            self._execute_worker(args[1])
+        self._execute_worker(args[2])
 
     def _execute_worker(self, queue_name):
         worker = get_worker(queue_name)
@@ -26,4 +25,4 @@ class Command(BaseCommand):
 
     def help_text(self):
         self.stdout.write('Use:')
-        self.stdout.write('./manage.py sqjobs worker QUEUE_NAME')
+        self.stdout.write('./manage.py sqjobs sqs worker QUEUE_NAME')

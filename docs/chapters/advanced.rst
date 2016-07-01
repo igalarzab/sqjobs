@@ -22,7 +22,7 @@ Then, you'll have to configure your connection to SQS with the following setting
 
 From now on your manage.py script will have a new command to execute the SQJobs worker::
 
-    $ ./manage.py worker QUEUE_NAME
+    $ ./manage.py sqs worker QUEUE_NAME
 
 By default, it will search for all the ``jobs`` modules (ex: a ``jobs.py`` file near your
 ``models.py``) in your ``INSTALLED_APPS`` settings and it will load all the jobs contained in them.
