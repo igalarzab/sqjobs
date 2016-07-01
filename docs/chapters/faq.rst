@@ -33,3 +33,33 @@ As an example, here is a sample configuration for circus::
     numprocesses = 4
     uid = sqjobs
     autostart = True
+
+
+I don't see any feedback when I'm executing the worker from Django
+------------------------------------------------------------------
+
+When using the worker from django (with the ``manage.py`` script) SQJobs doesn't print anything in
+the stdout/stderr. As a good practise, it uses the standard logging system of Python to provide you
+useful information about what's happening.
+
+To see this information you need to configure the django logging system. There is `plenty of
+information <https://docs.djangoproject.com/en/dev/topics/logging/>`_ about how to do it, but here
+is an example of the ``settings.py`` to export DEBUG information to the standard output (usually,
+your shell)::
+
+    LOGGING = {
+        ...
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            'sqjobs': {  # This is the name of the logger where SQJobs writes it information
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': False,
+            },
+        },
+    }
