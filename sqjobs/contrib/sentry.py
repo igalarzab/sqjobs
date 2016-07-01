@@ -15,6 +15,6 @@ def register_sentry(raven_client, worker):
             'job_args': args,
             'job_kwargs': kwargs,
             'job_retries': job.retries,
-    	})
+        })
 
     worker.append_exception_handler(send_exception_to_sentry)

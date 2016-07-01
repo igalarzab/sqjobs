@@ -29,11 +29,11 @@ By default, it will search for all the ``jobs`` modules (ex: a ``jobs.py`` file 
 
 Also, you can send new jobs to SQS using the ``add_job`` method::
 
-    from sqjobs.contrib.django.djsqjobs import add_job
+    from sqjobs.contrib.django import djsqjobs
     from .jobs import Adder
 
     def my_view(request):
-        add_job(Adder, 3, 4)
+        djsqjobs.add_job(Adder, 3, 4)
 
 
 Sending errors to sentry

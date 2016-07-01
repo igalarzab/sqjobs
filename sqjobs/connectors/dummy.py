@@ -59,6 +59,5 @@ class Dummy(Connector):
 
         return job, args, kwargs
 
-
     def _get_queue(self, name):
         return self.jobs.setdefault(name, [])

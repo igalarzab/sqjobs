@@ -37,6 +37,7 @@ from .utils import create_sqs_worker, get_jobs_from_module
 import logging
 logger = logging.getLogger('sqjobs.cli')
 
+
 def get_worker_config(broker, arguments):
     if broker != 'sqs':
         raise ValueError('Unknown broker: %s' % broker)
@@ -90,4 +91,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
