@@ -95,4 +95,4 @@ class TestEagerBroker(object):
         broker = EagerBroker()
 
         with pytest.raises(ZeroDivisionError):
-            assert broker.add_job(Divider, 2, 0)[1].err == "ZeroDivisionError"
+            assert broker.add_job(Divider, 2, 0)

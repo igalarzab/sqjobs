@@ -1,46 +1,42 @@
 import pytest
 
-from ..job import Job, RetryException
+from sqjobs import Job, RetryException
 from .fixtures import Adder, Divider, ComplexRetryJob
 
 
-class TestJobDefaults(object):
+class TestJobs(object):
 
-    def test_default_queue_name(self):
+    def test_job_class_defaults(self):
         assert Job.default_queue_name == 'sqjobs'
-
-    def test_no_default_retry_time(self):
         assert Job.retry_time is None
-
-    def test_no_default_name(self):
         assert Job.name is None
-
-    def test_default_name_generator(self):
+        assert Job.abstract is False
         assert Job._task_name() == 'Job'
 
-    def test_is_abstract_class(self):
         with pytest.raises(TypeError):
             Job()
 
-    def test_run_is_not_implemented(self):
-        adder = Adder()
-
         with pytest.raises(NotImplementedError):
-            Job.run(adder)
+            Job.run(Adder())
 
-
-class TestJobExample(object):
-
-    def test_job_defaults(self):
+    def test_job_obj_defaults(self):
         adder = Adder()
+
         assert repr(adder) == 'Adder()'
         assert adder.id is None
         assert adder.retries == 0
         assert adder.created_on is None
+        assert adder.queue_name is None
+        assert adder.broker_id is None
+        assert hasattr(adder, 'result') is False
 
     def test_overwritten_default_queue(self):
+        assert Divider().default_queue_name == 'math_operations'
+
+    def test_job_names(self):
         adder = Adder()
-        assert adder.default_queue_name == 'sqjobs'
+        assert adder.name == 'adder'
+        assert adder._task_name() == 'adder'
 
     def test_run_job_directly(self):
         adder = Adder()
@@ -51,22 +47,23 @@ class TestJobExample(object):
         adder.execute(1, 3)
         assert adder.result == 4
 
-    def test_whole_execute_job(self):
+    def test_whole_execute_lifecycle_job(self):
         divider = Divider()
         divider.execute(2, 1)
         assert divider.result == '3'
 
-    def test_job_names(self):
+    def test_retry_raises_exception(self):
         adder = Adder()
-        assert adder.name == 'adder'
-        assert adder._task_name() == 'adder'
+
+        with pytest.raises(RetryException):
+            adder.retry()
 
     def test_simple_next_retry(self):
         adder = Adder()
         assert adder.next_retry_time() == 10
 
 
-class TestComplexRetries(object):
+class TestRetries(object):
 
     def test_first_complex_retry(self):
         job = ComplexRetryJob()

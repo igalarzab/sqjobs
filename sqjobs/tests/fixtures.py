@@ -1,4 +1,4 @@
-from ..job import Job
+from sqjobs import Job
 
 
 class Adder(Job):
@@ -12,7 +12,7 @@ class Adder(Job):
 
 class Divider(Job):
     name = 'divider'
-    default_queue_name = 'sqjobs'
+    default_queue_name = 'math_operations'
     retry_time = 10
 
     def pre_run(self, num1, num2):
@@ -24,9 +24,14 @@ class Divider(Job):
     def post_run(self, num1, num2):
         self.result = str(self.result)
 
-    def on_failure(self):
-        self.err = 'ZeroDivisionError'
+    def on_success(self):
+        self.status = 'OK'
 
+    def on_failure(self):
+        self.status = 'KO'
+
+    def on_retry(self):
+        self.status = 'RETRIED'
 
 class RetryJob(Job):
     name = 'retry'
