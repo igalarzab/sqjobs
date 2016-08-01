@@ -14,7 +14,7 @@ def get_apps_names():
         return [app.name for app in apps.get_app_configs()]
     except ImportError:
         from django.db import models
-        return [app.__name__[:-6] for app in models.get_apps()]
+        return [app.__name__[:-7] for app in models.get_apps()]
 
 
 def register_all_jobs(worker):
