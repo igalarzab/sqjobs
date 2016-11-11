@@ -5,6 +5,7 @@ from .job import Job
 from .brokers.standard import Standard
 from .brokers.eager import Eager
 from .connectors.sqs import SQS
+from .connectors.rabbitmq import RabbitMQ
 from .worker import Worker
 
 import logging
@@ -28,6 +29,21 @@ def create_sqs_broker(access_key, secret_key, region_name='us-west-1', endpoint_
 
 def create_sqs_worker(queue_name, access_key, secret_key, region_name='us-west-1', endpoint_url=None):
     broker = create_sqs_broker(access_key, secret_key, region_name, endpoint_url)
+    return Worker(broker, queue_name)
+
+
+def create_rabbitmq_broker(transport, endpoint_url, exchange=None, queues={}):
+    rabbit = RabbitMQ(
+        access_key=access_key,
+        secret_key=secret_key,
+        region_name=region_name,
+        endpoint_url=endpoint_url,
+    )
+    return Standard(rabbit)
+
+
+def create_rabbitmq_worker(queue_name, transport, endpoint_url, exchange=None, queues={}):
+    broker = create_sqs_broker(transport, endpoint_url, exchange, queues)
     return Worker(broker, queue_name)
 
 
