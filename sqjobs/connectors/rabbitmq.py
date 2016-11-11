@@ -56,24 +56,26 @@ class RabbitMQ(Connector):
         message = RabbitMQMessage.encode(payload)
         with producers[self.connection].acquire(block=True) as producer:
             producer.publish(
-                payload,
+                message,
                 serializer='json',
                 compression='bzip2',
                 exchange=self.exchange,
                 declare=[self.exchange],
-                routing_key=priority,
+                routing_key=queue_name,
             )
+
         logger.info('Sent new message to %s', queue_name)
 
     def dequeue(self, queue_name, wait_time=20):
         queue = self.queues.get(queue_name)
+        bound_queue = queue(self.connection.channel())
         message = None
 
-        if not queue:
+        if not bound_queue:
             raise QueueDoesNotExist('The queue %s does not exist' % queue_name)
 
         while not message:
-            message = queue.get()
+            message = bound_queue.get()
 
             if not message:
                 logger.debug('No message retrieved from %s', queue_name)
@@ -85,21 +87,24 @@ class RabbitMQ(Connector):
 
     def delete(self, queue_name, message_id):
         queue = self.queues.get(queue_name)
+        bound_queue = queue(self.connection.channel())
 
-        if not queue:
+        if not bound_queue:
             raise QueueDoesNotExist('The queue %s does not exist' % queue_name)
 
-        queue.purge()
+        bound_queue.purge()
 
         logger.info('Deleted message from queue %s', queue_name)
 
-    # def set_retry_time(self, queue_name, message_id, delay):
-    #     queue = self.queues.get(queue_name)
+    def set_retry_time(self, queue_name, message_id, delay):
+        pass
+        # queue = self.queues.get(queue_name)
+        # bound_queue = queue(self.connection.channel())
 
-    #     if not queue:
-    #         raise QueueDoesNotExist('The queue %s does not exist' % queue_name)
+        # if not bound_queue:
+        #     raise QueueDoesNotExist('The queue %s does not exist' % queue_name)
 
-    #     queue.change_message_visibility_batch(Entries=[{
+    #     bound_queue.change_message_visibility_batch(Entries=[{
     #         'Id': '1',
     #         'ReceiptHandle': message_id,
     #         'VisibilityTimeout': delay or 0
@@ -120,9 +125,9 @@ class RabbitMQ(Connector):
 
         job.id = payload['id']
         job.queue_name = queue_name
-        job.broker_id = payload['_metadata']['id']
-        job.retries = payload['_metadata']['retries']
-        job.created_on = payload['_metadata']['created_on']
+        # job.broker_id = payload['_metadata']['id']
+        # job.retries = payload['_metadata']['retries']
+        # job.created_on = payload['_metadata']['created_on']
         args = payload['args'] or []
         kwargs = payload['kwargs'] or {}
 

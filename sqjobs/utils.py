@@ -34,16 +34,16 @@ def create_sqs_worker(queue_name, access_key, secret_key, region_name='us-west-1
 
 def create_rabbitmq_broker(transport, endpoint_url, exchange=None, queues={}):
     rabbit = RabbitMQ(
-        access_key=access_key,
-        secret_key=secret_key,
-        region_name=region_name,
+        transport=transport,
         endpoint_url=endpoint_url,
+        exchange=exchange,
+        queues=queues,
     )
     return Standard(rabbit)
 
 
 def create_rabbitmq_worker(queue_name, transport, endpoint_url, exchange=None, queues={}):
-    broker = create_sqs_broker(transport, endpoint_url, exchange, queues)
+    broker = create_rabbitmq_broker(transport, endpoint_url, exchange, queues)
     return Worker(broker, queue_name)
 
 
