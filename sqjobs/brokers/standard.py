@@ -19,7 +19,7 @@ class Standard(Broker):
         job_name = job_class._task_name()
         queue_name = kwargs.pop('queue_name', job_class.default_queue_name)
 
-        return self.add_job_by_name(job_name, queue_name, args, kwargs)
+        return self.add_job_by_name(job_name, queue_name, *args, **kwargs)
 
     def add_job_by_name(self, job_name, queue_name, *args, **kwargs):
         job_id = self.gen_job_id()
