@@ -127,10 +127,10 @@ class SQS(Connector):
 
         logger.info('Changed retry time of a message from queue %s', queue_name)
 
-    def serialize_job(self, job_class, job_id, args, kwargs):
+    def serialize_job(self, job_name, job_id, args, kwargs):
         return {
             'id': job_id,
-            'name': job_class._task_name(),
+            'name': job_name,
             'args': args,
             'kwargs': kwargs
         }
