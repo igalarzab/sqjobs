@@ -27,7 +27,7 @@ class Broker(object):
         """
         Serialize a job into a string to be sent to the broker
 
-        :param job_name: python class of the payload job
+        :param job_name: the name of the job
         :param job_id: the ID of the job
         :param args: arguments of the job
         :param kwargs: keyword arguments of the job
