@@ -38,10 +38,10 @@ class Dummy(Connector):
         self.retried_jobs.setdefault(queue_name, []).append((message_id, delay))
         self.num_retried_jobs += 1
 
-    def serialize_job(self, job_class, job_id, args, kwargs):
+    def serialize_job(self, job_name, job_id, args, kwargs):
         return {
             'id': job_id,
-            'name': job_class._task_name(),
+            'name': job_name,
             'args': args,
             'kwargs': kwargs
         }

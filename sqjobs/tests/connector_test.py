@@ -149,7 +149,7 @@ class TestSQSConnector(object):
         }
 
         serializer = sqs_connector.serialize_job(
-            job_class=Adder,
+            job_name='adder',
             job_id=15,
             args=[3, 4],
             kwargs={'first_param': 1, 'second_param': 'two'}

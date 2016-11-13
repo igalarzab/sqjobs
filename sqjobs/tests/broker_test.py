@@ -36,9 +36,30 @@ class TestStandardBroker(object):
         messages = broker.connector.jobs['sqjobs']
         assert len(messages) == 1
 
+    def test_add_job_by_name_to_broker(self):
+        broker = StandardBroker(self.connector)
+        broker.add_job_by_name('Adder', 'sqjobs', 2, 3)
+
+        queues = list(broker.connector.jobs.keys())
+        assert len(queues) == 1
+        assert queues[0] == 'sqjobs'
+        assert broker.connector.num_jobs == 1
+
+        messages = broker.connector.jobs['sqjobs']
+        assert len(messages) == 1
+
     def test_right_payload_args_when_job_is_added(self):
         broker = StandardBroker(self.connector)
         broker.add_job(Adder, 2, 3)
+
+        message = broker.connector.jobs['sqjobs'][0]
+        del message['id']  # Check that exists, but we don't care about the value
+
+        assert message == {'args': (2, 3), 'kwargs': {}, 'name': 'adder'}
+
+    def test_right_payload_args_when_job_is_added_by_name(self):
+        broker = StandardBroker(self.connector)
+        broker.add_job_by_name('adder', 'sqjobs', 2, 3)
 
         message = broker.connector.jobs['sqjobs'][0]
         del message['id']  # Check that exists, but we don't care about the value
@@ -54,9 +75,27 @@ class TestStandardBroker(object):
 
         assert message == {'args': (), 'kwargs': {'num1': 3, 'num2': 2}, 'name': 'adder'}
 
+    def test_right_payload_kwargs_when_job_is_added_by_name(self):
+        broker = StandardBroker(self.connector)
+        broker.add_job_by_name('adder', 'sqjobs', num2=2, num1=3)
+
+        message = broker.connector.jobs['sqjobs'][0]
+        del message['id']  # Check that exists, but we don't care about the value
+
+        assert message == {'args': (), 'kwargs': {'num1': 3, 'num2': 2}, 'name': 'adder'}
+
     def test_right_payload_both_when_job_is_added(self):
         broker = StandardBroker(self.connector)
         broker.add_job(Adder, 2, num2=3)
+
+        message = broker.connector.jobs['sqjobs'][0]
+        del message['id']  # Check that exists, but we don't care about the value
+
+        assert message == {'args': (2,), 'kwargs': {'num2': 3}, 'name': 'adder'}
+
+    def test_right_payload_both_when_job_is_added_by_name(self):
+        broker = StandardBroker(self.connector)
+        broker.add_job_by_name('adder', 'sqjobs', 2, num2=3)
 
         message = broker.connector.jobs['sqjobs'][0]
         del message['id']  # Check that exists, but we don't care about the value
