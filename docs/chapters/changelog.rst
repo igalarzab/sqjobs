@@ -3,6 +3,12 @@
 Changelog
 =========
 
+v0.7.1
+------
+
+* Added the possibility of queueing tasks using the task name.
+
+
 v0.7.0
 ------
 
