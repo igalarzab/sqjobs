@@ -68,11 +68,12 @@ class RabbitMQ(Connector):
 
     def dequeue(self, queue_name, wait_time=20):
         queue = self.queues.get(queue_name)
-        bound_queue = queue(self.connection.channel())
         message = None
 
-        if not bound_queue:
+        if not queue:
             raise QueueDoesNotExist('The queue %s does not exist' % queue_name)
+
+        bound_queue = queue(self.connection.channel())
 
         while not message:
             message = bound_queue.get()
@@ -81,20 +82,15 @@ class RabbitMQ(Connector):
                 logger.debug('No message retrieved from %s', queue_name)
 
         logger.info('New message retrieved from %s', queue_name)
+
         payload = RabbitMQMessage.decode(message)
+        message.ack()
 
         return payload
 
     def delete(self, queue_name, message_id):
-        queue = self.queues.get(queue_name)
-        bound_queue = queue(self.connection.channel())
-
-        if not bound_queue:
-            raise QueueDoesNotExist('The queue %s does not exist' % queue_name)
-
-        bound_queue.purge()
-
-        logger.info('Deleted message from queue %s', queue_name)
+        # No need to delete the message as it has already been acknowleged
+        pass
 
     def set_retry_time(self, queue_name, message_id, delay):
         pass
@@ -113,9 +109,11 @@ class RabbitMQ(Connector):
     #     logger.info('Changed retry time of a message from queue %s', queue_name)
 
     def serialize_job(self, job_name, job_id, args, kwargs):
+        ttl = kwargs.pop('ttl', 0)
         return {
             'id': job_id,
             'name': job_name,
+            'ttl': ttl,
             'args': args,
             'kwargs': kwargs
         }
@@ -125,9 +123,9 @@ class RabbitMQ(Connector):
 
         job.id = payload['id']
         job.queue_name = queue_name
-        # job.broker_id = payload['_metadata']['id']
-        # job.retries = payload['_metadata']['retries']
-        # job.created_on = payload['_metadata']['created_on']
+        job.ttl = payload['ttl'] or 0
+        job.args = payload['args'] or []
+        job.kwargs = payload['kwargs'] or {}
         args = payload['args'] or []
         kwargs = payload['kwargs'] or {}
 
@@ -148,15 +146,6 @@ class RabbitMQMessage(object):
 
         payload_decoded = base64.b64decode(body)
         payload = json.loads(payload_decoded.decode("utf-8"))
-
-        # retries = int(message.attributes['ApproximateReceiveCount'])
-        # created_on = int(message.attributes['SentTimestamp'])
-
-        # payload['_metadata'] = {
-        #     'id': message.receipt_handle,
-        #     'retries': retries,
-        #     'created_on': datetime.fromtimestamp(created_on / 1000, tz=timezone('UTC')),
-        # }
 
         logging.debug('Message payload: %s', str(payload))
 
