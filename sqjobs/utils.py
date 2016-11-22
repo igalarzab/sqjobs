@@ -3,6 +3,7 @@ import inspect
 
 from .job import Job
 from .brokers.standard import Standard
+from .brokers.multiqueue import MultiQueue
 from .brokers.eager import Eager
 from .connectors.sqs import SQS
 from .worker import Worker
@@ -29,6 +30,16 @@ def create_sqs_broker(access_key, secret_key, region_name='us-west-1', endpoint_
 def create_sqs_worker(queue_name, access_key, secret_key, region_name='us-west-1', endpoint_url=None):
     broker = create_sqs_broker(access_key, secret_key, region_name, endpoint_url)
     return Worker(broker, queue_name)
+
+
+def create_multiqueue_sqs_worker(queue_names, access_key, secret_key, region_name='us-west-1', endpoint_url=None):
+    sqs = SQS(
+        access_key=access_key,
+        secret_key=secret_key,
+        region_name=region_name,
+        endpoint_url=endpoint_url,
+    )
+    return Worker(MultiQueue(sqs), queue_names)
 
 
 def get_jobs_from_module(module_name):
