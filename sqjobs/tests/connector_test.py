@@ -40,7 +40,7 @@ class TestConnectorInterface(object):
             Connector.serialize_job(dummy, dummy, 'job_id', 'args', {})
 
         with pytest.raises(NotImplementedError):
-            Connector.unserialize_job(dummy, dummy, 'demo', 'payload')
+            Connector.unserialize_job(dummy, dummy, 'payload')
 
 
 class SQSMock(object):
@@ -176,7 +176,6 @@ class TestSQSConnector(object):
 
         job, args, kwargs = sqs_connector.unserialize_job(
             job_class=Adder,
-            queue_name=QUEUE_NAME,
             payload=payload
         )
 

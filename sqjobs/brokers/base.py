@@ -34,12 +34,11 @@ class Broker(object):
         """
         return self.connector.serialize_job(job_name, job_id, args, kwargs)
 
-    def unserialize_job(self, job_class, queue_name, payload):
+    def unserialize_job(self, job_class, payload):
         """
         Build a job given a payload returned from the broker
 
         :param job_class: python class of the payload job
-        :param queue_name: queue where the job was located
         :param payload: python dict with the job arguments
         """
-        return self.connector.unserialize_job(job_class, queue_name, payload)
+        return self.connector.unserialize_job(job_class, payload)

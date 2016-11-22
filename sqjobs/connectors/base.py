@@ -63,12 +63,11 @@ class Connector(object):
         raise NotImplementedError
 
     @abstractmethod
-    def unserialize_job(self, job_class, queue_name, payload):
+    def unserialize_job(self, job_class, payload):
         """
         Build a job given a payload returned from the connector
 
         :param job_class: Python class of the payload job
-        :param queue_name: queue where the job was located
         :param payload: Python dict with the job arguments
         """
         raise NotImplementedError

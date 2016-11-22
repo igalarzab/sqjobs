@@ -46,11 +46,11 @@ class Dummy(Connector):
             'kwargs': kwargs
         }
 
-    def unserialize_job(self, job_class, queue_name, payload):
+    def unserialize_job(self, job_class, payload):
         job = job_class()
 
         job.id = payload['id']
-        job.queue_name = queue_name
+        job.queue_name = payload['_metadata']['queue_name']
         job.broker_id = payload['_metadata']['id']
         job.retries = payload['_metadata']['retries']
         job.created_on = payload['_metadata']['created_on']

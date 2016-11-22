@@ -96,7 +96,7 @@ class SQS(Connector):
                     return None  # Non-blocking mode
 
         logger.info('New message retrieved from %s', queue_name)
-        payload = SQSMessage.decode(messages[0])
+        payload = SQSMessage.decode(messages[0], queue_name)
 
         return payload
 
@@ -135,11 +135,11 @@ class SQS(Connector):
             'kwargs': kwargs
         }
 
-    def unserialize_job(self, job_class, queue_name, payload):
+    def unserialize_job(self, job_class, payload):
         job = job_class()
 
         job.id = payload['id']
-        job.queue_name = queue_name
+        job.queue_name = payload['_metadata']['queue_name']
         job.broker_id = payload['_metadata']['id']
         job.retries = payload['_metadata']['retries']
         job.created_on = payload['_metadata']['created_on']
@@ -164,7 +164,7 @@ class SQSMessage(object):
         return payload_encoded.decode('utf-8')
 
     @staticmethod
-    def decode(message):
+    def decode(message, queue_name):
         body = message.body
 
         if is_pypy:
@@ -180,6 +180,7 @@ class SQSMessage(object):
             'id': message.receipt_handle,
             'retries': retries,
             'created_on': datetime.fromtimestamp(created_on / 1000, tz=timezone('UTC')),
+            'queue_name': queue_name
         }
 
         logging.debug('Message payload: %s', str(payload))

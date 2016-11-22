@@ -50,7 +50,7 @@ class Worker(object):
                     logger.error('Unregistered task: %s', payload['name'])
                     continue
 
-                job, args, kwargs = self.broker.unserialize_job(job_class, self.queue_name, payload)
+                job, args, kwargs = self.broker.unserialize_job(job_class, payload)
                 self._set_custom_retry_time_if_needed(job)
                 self._execute_job(job, args, kwargs)
             except:
