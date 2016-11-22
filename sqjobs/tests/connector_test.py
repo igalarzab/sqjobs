@@ -165,7 +165,8 @@ class TestSQSConnector(object):
             '_metadata': {
                 'created_on': datetime(2016, 4, 9, 7, 16, 44, tzinfo=timezone('UTC')),
                 'id': '1',
-                'retries': 0
+                'retries': 0,
+                'queue_name': 'my_queue'
             },
             'args': [1, 'second_arg'],
             'kwargs': {
@@ -210,7 +211,8 @@ class TestSQSConnector(object):
             '_metadata': {
                 'created_on': datetime(2016, 4, 9, 7, 16, 44, tzinfo=timezone('UTC')),
                 'id': '1',
-                'retries': 0
+                'retries': 0,
+                'queue_name': 'my_queue'
             },
             'key': 'value'
         }
