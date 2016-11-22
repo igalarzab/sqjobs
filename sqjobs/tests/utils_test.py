@@ -1,9 +1,11 @@
 from sqjobs import metadata
 from sqjobs.brokers.eager import Eager
 from sqjobs.brokers.standard import Standard
+from sqjobs.brokers.multiqueue import MultiQueue
 from sqjobs.connectors.sqs import SQS
 from sqjobs.utils import (
-    create_sqs_broker, create_sqs_worker, get_jobs_from_module, create_eager_broker
+    create_sqs_broker, create_sqs_worker, get_jobs_from_module,
+    create_eager_broker, create_multiqueue_sqs_worker
 )
 from sqjobs.worker import Worker
 from .fixtures import Adder, AbstractAdder
@@ -37,6 +39,18 @@ class TestBuilders(object):
         assert isinstance(worker.broker.connector, SQS)
 
         assert worker.queue_name == 'queue_name'
+        assert worker.broker.connector.access_key == 'access'
+        assert worker.broker.connector.secret_key == 'secret'
+        assert worker.broker.connector.region_name == 'us-west-1'
+
+    def test_multiqueue_worker_builder(self):
+        worker = create_multiqueue_sqs_worker(['queue_name'], 'access', 'secret')
+
+        assert isinstance(worker, Worker)
+        assert isinstance(worker.broker, MultiQueue)
+        assert isinstance(worker.broker.connector, SQS)
+
+        assert worker.queue_name == ['queue_name']
         assert worker.broker.connector.access_key == 'access'
         assert worker.broker.connector.secret_key == 'secret'
         assert worker.broker.connector.region_name == 'us-west-1'
