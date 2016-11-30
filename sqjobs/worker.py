@@ -51,6 +51,7 @@ class Worker(object):
                     continue
 
                 job, args, kwargs = self.broker.unserialize_job(job_class, payload)
+                self._set_custom_retry_time_if_needed(job)
                 self._execute_job(job, args, kwargs)
             except:
                 logger.exception('Error executing job')
