@@ -51,7 +51,6 @@ class Worker(object):
                     continue
 
                 job, args, kwargs = self.broker.unserialize_job(job_class, payload)
-                self._set_custom_retry_time_if_needed(job)
                 self._execute_job(job, args, kwargs)
             except:
                 logger.exception('Error executing job')
@@ -68,10 +67,12 @@ class Worker(object):
             self.broker.delete_job(job)
         except RetryException:
             job.on_retry()
+            self._set_custom_retry_time_if_needed(job)
             return
         except:
             job.on_failure()
             self._handle_exception(job, args, kwargs, *sys.exc_info())
+            self._set_custom_retry_time_if_needed(job)
             return
 
         job.on_success()
