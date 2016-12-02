@@ -34,4 +34,3 @@ class MultiQueue(Standard):
             else:
                 # only update last check when queue is empty
                 queue_last_check[queue_name] = int(time())
-                break
