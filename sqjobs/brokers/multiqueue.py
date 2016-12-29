@@ -1,4 +1,4 @@
-from time import time, sleep
+from time import time
 from itertools import cycle
 from collections import defaultdict
 
@@ -25,7 +25,7 @@ class MultiQueue(Standard):
             next_check = queue_last_check[queue_name] + self.polling_interval
 
             if next_check > int(time()):
-                sleep(next_check - int(time()))
+                continue
 
             # wait_time needs to be 0 or it will block in the first queue
             payload = self.connector.dequeue(queue_name, wait_time=0)
