@@ -1,6 +1,6 @@
 __uname__ = 'sqjobs'
 __long_name__ = 'Simple Queue Jobs'
-__version__ = '0.7.1'
+__version__ = '1.0.0'
 __author__ = 'Jose Ignacio Galarza'
 __email__ = 'igalarzab@gmail.com'
 __url__ = 'http://github.com/igalarzab/sqjobs'

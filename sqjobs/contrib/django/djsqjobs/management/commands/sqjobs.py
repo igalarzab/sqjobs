@@ -8,14 +8,15 @@ from sqjobs.contrib.django.djsqjobs.utils import get_worker
 
 class Command(BaseCommand):
     help = 'sqjobs commands'
-    args = True
+
+    def add_arguments(self, parser):
+        parser.add_argument("transport", default="sqs", type=str, choices=["sqs"])
+        parser.add_argument("mode", default="worker", type=str, choices=["worker"])
+        parser.add_argument("queue_name", type=str)
+
 
     def handle(self, *args, **options):
-        if len(args) != 3 or args[0] != 'sqs' or args[1] != 'worker':
-            self.help_text()
-            return
-
-        self._execute_worker(args[2])
+        self._execute_worker(options["queue_name"])
 
     def _execute_worker(self, queue_name):
         worker = get_worker(queue_name)
