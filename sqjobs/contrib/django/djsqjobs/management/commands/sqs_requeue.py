@@ -32,8 +32,15 @@ class Command(BaseCommand):
 
         # Get number of visible messages
         messages = int(orig_queue.attributes.get('ApproximateNumberOfMessages'))
-        for _ in range(messages / 10):
-            # We can receive at most 10 messages per call
-            for message in orig_queue.receive_messages(MaxNumberOfMessages=10):
+        self.stdout.write('Visible messages: {}'.format(messages))
+
+        processed_messages = 0
+        for _ in range(messages):
+            # We can receive at most 10 messages per call, soo we get one by one
+            for message in orig_queue.receive_messages():
                 dest_queue.send_message(MessageBody=message.body)
                 message.delete()
+
+                processed_messages += 1
+
+        self.stdout.write('Processed messages: {}'.format(processed_messages))
