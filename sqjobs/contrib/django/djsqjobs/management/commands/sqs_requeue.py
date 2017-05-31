@@ -23,17 +23,17 @@ class Command(BaseCommand):
             origin, destination
         ))
 
-        messages_ok = 0
-        sqs_connector = get_broker().connector
-        while True:
-            message = sqs_connector.dequeue(origin, wait_time=0)
+        # Get SQS resource from sqjobs broker
+        sqs = get_broker().connector.connection
 
-            if not message:
-                break
+        # Get SQS queues
+        orig_queue = sqs.get_queue_by_name(QueueName=origin)
+        dest_queue = sqs.get_queue_by_name(QueueName=destination)
 
-            sqs_connector.enqueue(destination, message)
-            messages_ok += 1
-
-        self.stdout.write(self.style.SUCCESS(
-            'Messages processed: {}'.format(messages_ok)
-        ))
+        # Get number of visible messages
+        messages = int(orig_queue.attributes.get('ApproximateNumberOfMessages'))
+        for _ in range(messages / 10):
+            # We can receive at most 10 messages per call
+            for message in orig_queue.receive_messages(MaxNumberOfMessages=10):
+                dest_queue.send_message(MessageBody=message.body)
+                message.delete()
