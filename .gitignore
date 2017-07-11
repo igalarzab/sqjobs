@@ -5,7 +5,6 @@
 # distutils
 /sqjobs.egg-info/
 /dist/
-/build/
 
 # coverage
 .cache
@@ -14,3 +13,6 @@ htmlcov/
 
 # sphinx
 docs/_build
+
+/.cache/
+*/.mypy_cache/*
