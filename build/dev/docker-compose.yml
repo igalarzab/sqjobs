@@ -1,0 +1,17 @@
+version: "2"
+services:
+  sqjobs:
+    build:
+      args:
+        uid: ${UID}
+        gid: ${GID}
+      context: ../..
+      dockerfile: build/dev/Dockerfile
+    image: sqjobs:dev
+    volumes:
+      - ../..:/code
+      - ../..:/opt/sqjobs
+      - ~/.gitconfig:/home/sqjobs/.gitconfig:ro
+      - ~/.ssh:/home/sqjobs/.ssh:ro
+      - ~/.bash_history.sqjobs:/home/sqjobs/.bash_history
+    command: "/bin/true"
