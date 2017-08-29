@@ -1,3 +1,4 @@
+import signal
 import sys
 import traceback
 
@@ -16,6 +17,10 @@ class Worker(object):
         self.timeout = timeout or self.DEFAULT_TIMEOUT
         self.registered_jobs = {}
         self.exception_handlers = []
+        self._shutting_down = False
+
+        signal.signal(signal.SIGINT, self._exit_gracefully)
+        signal.signal(signal.SIGTERM, self._exit_gracefully)
 
     def __repr__(self):
         return 'Worker({connector})'.format(
@@ -43,6 +48,9 @@ class Worker(object):
         logger.info('Running worker, %d jobs registered...', len(self.registered_jobs))
 
         for payload in self.broker.jobs(self.queue_name, self.timeout):
+            if self._shutting_down:
+                break
+
             try:
                 job_class = self.registered_jobs.get(payload['name'])
 
@@ -95,3 +103,7 @@ class Worker(object):
         for handler in reversed(self.exception_handlers):
             logger.debug('Executing exception handler %s', handler)
             handler(job, args, kwargs, *exc_info)
+
+    def _exit_gracefully(self, signum, frame):
+        logger.info('Shutting down the worker...')
+        self._shutting_down = True
